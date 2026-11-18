@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Euclid Marquez — UI/UX &amp; Game Interface Designer</title>
+  <!-- Load Google Fonts: Plus Jakarta Sans & Instrument Serif -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Load Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+          },
+          colors: {
+            paper: '#fcfcfb',
+            surface: '#f4f4f2',
+            pill: '#f1f1ef',
+            ink: '#18181b',
+            subink: '#52525b',
+            mutedink: '#71717a',
+            hairline: '#e4e4e7',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #fcfcfb;
+      color: #18181b;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Editorial Card Hover Lift */
+    .project-stage {
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .project-card:hover .project-stage {
+      transform: translateY(-3px) scale(1.008);
+      box-shadow: 0 18px 36px -16px rgba(24, 24, 27, 0.11);
+    }
+    .project-card:hover .arrow-icon {
+      transform: translate(3px, -3px);
+      color: #18181b;
+    }
+
+    /* Pill Tab Styling matching Michelle Liu's navigation */
+    .pill-tab {
+      color: #71717a;
+      background-color: transparent;
+      border-radius: 9999px;
+      transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .pill-tab:hover:not(.active) {
+      color: #18181b;
+    }
+    .pill-tab.active {
+      color: #18181b;
+      background-color: #f1f1ef;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Reusable Image Slot Placeholder Frame */
+    .image-slot {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #f8f8f6;
+      border: 1.5px dashed #d4d4d8;
+      border-radius: 14px;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .group:hover .image-slot,
+    .image-slot:hover {
+      border-color: #a1a1aa;
+      background-color: #f4f4f1;
+    }
+    /* When you drop a real <img> inside .image-slot, it fits cleanly without cropping */
+    .image-slot img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      z-index: 10;
+    }
+
+    /* Subtle Fade In for View Switching */
+    .view-panel {
+      animation: fadeSlide 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Subtle Pen Tilt Loop next to Name */
+    @keyframes penTilt {
+      0%, 100% {
+        transform: rotate(0deg) translateY(0px);
+      }
+      25% {
+        transform: rotate(-10deg) translateY(-1px);
+      }
+      60% {
+        transform: rotate(8deg) translateY(0px);
+      }
+    }
+    .pen-tilt {
+      display: inline-flex;
+      animation: penTilt 3.2s ease-in-out infinite;
+      transform-origin: bottom left;
+    }
+
+    /* Case Study Modal & Full-Screen Drawer Transitions */
+    #case-modal {
+      transition: opacity 0.22s ease, padding 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    #modal-dialog {
+      transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+                  max-width 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+                  height 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+                  max-height 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+                  border-radius 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    /* Full-Screen Mode (/project/<slug>/full) */
+    #case-modal.is-fullscreen {
+      padding: 0 !important;
+      background-color: #fcfcfb;
+    }
+    #case-modal.is-fullscreen #modal-dialog {
+      width: 100vw;
+      max-width: 100vw;
+      height: 100vh;
+      max-height: 100vh;
+      border-radius: 0;
+      border-color: transparent;
+      box-shadow: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-paper selection:bg-zinc-900 selection:text-white">
+
+  <!-- Persistent Editorial Hero Header & Pill-Tab Navigation -->
+  <header class="max-w-[1040px] w-full mx-auto px-6 sm:px-10 pt-12 sm:pt-16">
+    <!-- Top-Left Portfolio Icon (Transparent Background) -->
+    <div class="mb-7">
+      <button type="button"
+              onclick="switchView('work')"
+              aria-label="Return to Work home"
+              title="Euclid Marquez"
+              class="w-[46px] h-[46px] flex items-center justify-center overflow-visible group cursor-pointer hover:scale-[1.05] transition-transform focus:outline-none">
+        <img src="Portfolio_IconTemp.png"
+             alt="Euclid Marquez illustrated icon"
+             onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
+             class="w-full h-full object-contain" />
+        <span class="hidden text-[8px] font-mono uppercase tracking-tighter text-mutedink leading-none select-none">Icon</span>
+      </button>
+    </div>
+
+    <!-- Display Name with Animated Tilting Pen Icon -->
+    <h1 class="text-[2.4rem] sm:text-[3rem] font-medium tracking-[-0.025em] text-ink leading-[1.15] mb-3.5 inline-flex items-center gap-2.5">
+      <span>Euclid Marquez</span>
+      <span class="pen-tilt text-ink/85" aria-hidden="true">
+        <svg class="w-6 h-6 sm:w-7 sm:h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+          <path d="m15 5 4 4" />
+        </svg>
+      </span>
+    </h1>
+
+    <!-- Two-Line Editorial Pitch -->
+    <div class="text-[1.02rem] sm:text-[1.16rem] leading-[1.6] text-subink font-normal max-w-[780px] space-y-0.5">
+      <p>I design playful game interfaces and intuitive digital products.</p>
+      <p class="text-[0.95rem] sm:text-[1.04rem] text-subink">
+        Currently a Freelance Designer at <span class="text-ink font-medium">EGM Design Studio</span>
+      </p>
+    </div>
+
+    <!-- Horizontal Pill-Tab Bar Directly Below the Pitch -->
+    <nav aria-label="Primary Navigation" class="flex flex-wrap items-center gap-2.5 sm:gap-3.5 mt-7 mb-6">
+      <button type="button" onclick="switchView('work')" id="nav-work" class="pill-tab active px-5 py-2 text-[0.95rem] font-medium cursor-pointer">
+        Work
+      </button>
+      <button type="button" onclick="switchView('designs')" id="nav-designs" class="pill-tab px-5 py-2 text-[0.95rem] font-medium cursor-pointer">
+        Designs
+      </button>
+      <!-- ARCHIVED DRAFT: Services Tab (Uncomment when ready to publish)
+      <button type="button" onclick="switchView('services')" id="nav-services" class="pill-tab px-5 py-2 text-[0.95rem] font-medium cursor-pointer">
+        Services
+      </button>
+      -->
+      <button type="button" onclick="switchView('about')" id="nav-about" class="pill-tab px-5 py-2 text-[0.95rem] font-medium cursor-pointer">
+        About
+      </button>
+    </nav>
+
+    <!-- Full-Width Thin Horizontal Divider Line -->
+    <div class="w-full h-px bg-hairline"></div>
+  </header>
+
+  <!-- Dynamic Content Area Below the Divider -->
+  <main class="flex-1 max-w-[1040px] w-full mx-auto px-6 sm:px-10 pt-10 sm:pt-12 pb-24">
+
+    <!-- ==================== VIEW 1: WORK (DEFAULT) ==================== -->
+    <div id="view-work" class="view-panel">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-9 gap-y-12">
+
+        <!-- Card 1: Be a Bobarista -->
+        <article class="project-card group cursor-pointer" onclick="openCaseModal('bobarista')">
+          <div class="project-stage aspect-[16/10] rounded-[20px] bg-[#f7f4ef] border border-zinc-200/80 overflow-hidden relative flex items-center justify-center">
+            <img src="BeABobarista.png"
+                 alt="Be a Bobarista — Roblox Studio Boba Shop Simulator"
+                 onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
+                 class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.02]" />
+            <!-- Fallback placeholder if BeABobarista.png isn't in the same folder yet -->
+            <div class="hidden image-slot w-full h-full border-0 rounded-none">
+              <span class="text-[10px] font-mono uppercase tracking-wider text-mutedink bg-white px-2.5 py-0.5 rounded-full border border-zinc-200 mb-2">
+                16:10 Cover Slot
+              </span>
+              <p class="text-xs font-medium text-ink">BeABobarista.png</p>
+              <p class="text-[11px] text-subink mt-0.5 px-4 text-center">Boba shop simulator built in Roblox Studio</p>
+            </div>
+          </div>
+
+          <!-- Card Caption Row -->
+          <div class="mt-4 flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-lg font-semibold text-ink tracking-tight">Be a Bobarista</h2>
+              <p class="text-sm text-subink mt-0.5">Boba shop simulator built in Roblox Studio</p>
+              <p class="text-xs text-mutedink mt-1.5">Game UI/UX • Design Systems • Lua</p>
+            </div>
+            <span class="arrow-icon text-mutedink text-lg leading-none pt-0.5 transition-transform duration-200">↗</span>
+          </div>
+        </article>
+
+        <!-- Card 2: drivetalk -->
+        <article class="project-card group cursor-pointer" onclick="openCaseModal('drivetalk')">
+          <div class="project-stage aspect-[16/10] rounded-[20px] bg-[#161618] border border-zinc-200/80 overflow-hidden relative flex items-center justify-center">
+            <img src="DriveTalk.png"
+                 alt="drivetalk — Narrative Mystery Game UI/UX & Brand Identity"
+                 onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
+                 class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.02]" />
+            <!-- Fallback placeholder if DriveTalk.png isn't in the same folder yet -->
+            <div class="hidden image-slot w-full h-full border-0 rounded-none">
+              <span class="text-[10px] font-mono uppercase tracking-wider text-mutedink bg-white px-2.5 py-0.5 rounded-full border border-zinc-200 mb-2">
+                16:10 Cover Slot
+              </span>
+              <p class="text-xs font-medium text-ink">DriveTalk.png</p>
+              <p class="text-[11px] text-subink mt-0.5 px-4 text-center">Narrative mystery game built in Unity</p>
+            </div>
+          </div>
+
+          <!-- Card Caption Row -->
+          <div class="mt-4 flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-lg font-semibold text-ink tracking-tight">drivetalk</h2>
+              <p class="text-sm text-subink mt-0.5">Narrative mystery game built in Unity</p>
+              <p class="text-xs text-mutedink mt-1.5">Game UI/UX • Brand Identity • Figma</p>
+            </div>
+            <span class="arrow-icon text-mutedink text-lg leading-none pt-0.5 transition-transform duration-200">↗</span>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+    <!-- ==================== VIEW 2: DESIGNS (WORK IN PROGRESS + ARCHIVED GALLERY DRAFT) ==================== -->
+    <div id="view-designs" class="view-panel hidden">
+      <div class="py-12">
+        <p class="text-sm text-mutedink">Work in progress.</p>
+      </div>
+
+      <!-- ARCHIVED DRAFT: Designs Gallery (Uncomment when ready to publish)
+      <div class="space-y-8">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-semibold text-ink tracking-tight">Selected Graphic &amp; UI Designs</h2>
+            <p class="text-sm text-subink mt-0.5">Brand identities, vector marks, and interface explorations from Yukisoba Studio &amp; game projects.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" onclick="filterDesigns('all', this)" class="design-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium bg-ink text-white cursor-pointer">All</button>
+            <button type="button" onclick="filterDesigns('brand', this)" class="design-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium bg-pill text-subink hover:text-ink cursor-pointer">Brand &amp; Logos</button>
+            <button type="button" onclick="filterDesigns('ui', this)" class="design-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium bg-pill text-subink hover:text-ink cursor-pointer">UI Explorations</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="design-item rounded-[18px] bg-surface border border-zinc-200/80 p-3.5 space-y-3" data-cat="brand">
+            <div class="image-slot aspect-[4/3] w-full p-4 text-center">
+              <img src="BeABobaristaStyleGuide.png"
+                   alt="Be a Bobarista Brand & Style Guide"
+                   class="object-contain p-2"
+                   onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
+              <div class="hidden flex flex-col items-center justify-center">
+                <p class="text-xs font-medium text-ink">BeABobaristaStyleGuide.png</p>
+              </div>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-ink">Be a Bobarista Brand System</p>
+              <p class="text-xs text-subink mt-0.5">Mascot mark, typography &amp; warm color palette</p>
+            </div>
+          </div>
+
+          <div class="design-item rounded-[18px] bg-surface border border-zinc-200/80 p-3.5 space-y-3" data-cat="ui">
+            <div class="image-slot aspect-[4/3] w-full p-4 text-center">
+              <img src="BeABobarista_RegisterWindow.png"
+                   alt="Interactive Register UI Window"
+                   class="object-contain p-2"
+                   onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
+              <div class="hidden flex flex-col items-center justify-center">
+                <p class="text-xs font-medium text-ink">BeABobarista_RegisterWindow.png</p>
+              </div>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-ink">Tactile Register Window</p>
+              <p class="text-xs text-subink mt-0.5">Custom skeuomorphic game UI &amp; receipt preview</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      -->
+    </div>
+
+    <!-- ==================== ARCHIVED DRAFT: VIEW 3: SERVICES (UNCOMMENT WHEN READY TO PUBLISH) ==================== -->
+    <!--
+    <div id="view-services" class="view-panel hidden space-y-12">
+
+      <div class="max-w-[740px] space-y-4">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-pill border border-zinc-200/80 text-xs font-medium text-ink">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>Open for Projects • Yukisoba Studio</span>
+        </div>
+
+        <h2 class="text-2xl sm:text-[1.95rem] font-semibold text-ink tracking-tight leading-snug">
+          Brand Identity, Graphic Design &amp; Game UI/UX
+        </h2>
+
+        <p class="text-[0.98rem] text-subink leading-relaxed">
+          Available for local businesses, creators, and game developers. Book a listed service directly through my Behance page (powered by Stripe) or reach out via email for a custom project quote.
+        </p>
+
+        <div class="flex flex-wrap items-center gap-3 pt-2">
+          <a href="https://www.behance.net/euclidm"
+             target="_blank"
+             rel="noopener"
+             class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-ink text-white text-sm font-medium hover:bg-zinc-700 transition-colors">
+            <span>Book on Behance</span>
+            <span>↗</span>
+          </a>
+          <a href="mailto:euclidgm717@gmail.com?subject=Project%20Inquiry%20%E2%80%94%20Yukisoba%20Studio"
+             class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-pill text-ink text-sm font-medium hover:bg-zinc-200/80 border border-zinc-200/70 transition-colors">
+            <span>Email for Custom Quote</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+
+        <div class="rounded-[22px] bg-surface border border-zinc-200/80 p-7 sm:p-8 flex flex-col justify-between space-y-6">
+          <div class="space-y-3.5">
+            <span class="inline-block text-[11px] font-medium text-subink bg-white px-3 py-1 rounded-full border border-zinc-200/80">
+              For Local Businesses &amp; Creators
+            </span>
+            <h3 class="text-xl font-semibold text-ink tracking-tight">
+              Brand Identity &amp; Graphic Design
+            </h3>
+            <p class="text-sm text-subink leading-relaxed">
+              Memorable visual identities, logos, and print or digital collateral built to help local businesses, cafes, and creators stand out.
+            </p>
+            <ul class="pt-2 space-y-2 text-sm text-subink">
+              <li class="flex items-start gap-2.5">
+                <span class="text-ink font-medium">•</span>
+                <span>Primary &amp; secondary logo lockups or mascot marks</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-ink font-medium">•</span>
+                <span>Cohesive color palette &amp; typography style guide</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-ink font-medium">•</span>
+                <span>Menu layouts, packaging, signage, or social media graphics</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-ink font-medium">•</span>
+                <span>Print-ready &amp; transparent vector source files (SVG, PNG, PDF)</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="pt-4 border-t border-hairline flex flex-wrap items-center justify-between gap-3">
+            <a href="https://www.behance.net/euclidm"
+               target="_blank"
+               rel="noopener"
+               class="inline-flex items-center gap-1.5 text-sm font-medium text-ink hover:opacity-75 transition-opacity">
+              <span>View &amp; Book on Behance</span>
+              <span>↗</span>
+            </a>
+            <a href="mailto:euclidgm717@gmail.com?subject=Brand%20%26%20Graphic%20Design%20Inquiry"
+               class="text-xs font-medium text-mutedink hover:text-ink transition-colors">
+              Inquire via email →
+            </a>
+          </div>
+        </div>
+
+        <div class="rounded-[22px] bg-surface border border-zinc-200/80 p-7 sm:p-8 flex flex-col justify-between space-y-6">
+          <div class="space-y-3.5">
+            <span class="inline-block text-[11px] font-medium text-subink bg-white px-3 py-1 rounded-full border border-zinc-200/80">
+              For Indie &amp; Roblox Studios
+            </span>
+            <h3 class="text-xl font-semibold text-ink tracking-tight">
+              Game UI/UX &amp; Roblox Interfaces
+            </h3>
+            <p class="text-sm text-subink leading-relaxed">
+              Cohesive, responsive game menus, HUDs, and interactive flows designed in Figma and ready for engine integration.
+            </p>
+            <ul class="pt-2 space-y-2 text-sm text-subink">
+              <li class="flex items-start gap-2.5">
+                <span class="text-ink font-medium">•</span>
+                <span>Wireframes, player user flows &amp; interactive Figma prototypes</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-ink font-medium">•</span>
+                <span>Custom UI windows, buttons, badges &amp; iconography</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-ink font-medium">•</span>
+                <span>Game UI style guide for typography, colors &amp; states</span>
+              </li>
+              <li class="flex items-start gap-2.5">
+                <span class="text-ink font-medium">•</span>
+                <span>Optional Roblox Studio UI import &amp; responsive scaling setup</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="pt-4 border-t border-hairline flex flex-wrap items-center justify-between gap-3">
+            <a href="https://www.behance.net/euclidm"
+               target="_blank"
+               rel="noopener"
+               class="inline-flex items-center gap-1.5 text-sm font-medium text-ink hover:opacity-75 transition-opacity">
+              <span>View &amp; Book on Behance</span>
+              <span>↗</span>
+            </a>
+            <a href="mailto:euclidgm717@gmail.com?subject=Game%20UI%2FUX%20Inquiry"
+               class="text-xs font-medium text-mutedink hover:text-ink transition-colors">
+              Inquire via email →
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="pt-2">
+        <p class="text-xs font-semibold uppercase tracking-[0.08em] text-mutedink mb-5">How It Works</p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-hairline pt-6">
+          <div class="space-y-1.5">
+            <p class="text-xs font-mono text-mutedink">01 / BOOK OR INQUIRE</p>
+            <h4 class="text-sm font-semibold text-ink">Choose a Service or Email</h4>
+            <p class="text-xs text-subink leading-relaxed">
+              Order directly on Behance with Stripe checkout, or send an email with your project goals and timeline.
+            </p>
+          </div>
+          <div class="space-y-1.5">
+            <p class="text-xs font-mono text-mutedink">02 / DESIGN &amp; FEEDBACK</p>
+            <h4 class="text-sm font-semibold text-ink">Concepts &amp; Check-Ins</h4>
+            <p class="text-xs text-subink leading-relaxed">
+              Review initial wireframes or logo directions with structured feedback rounds to refine every detail.
+            </p>
+          </div>
+          <div class="space-y-1.5">
+            <p class="text-xs font-mono text-mutedink">03 / FINAL HANDOFF</p>
+            <h4 class="text-sm font-semibold text-ink">Ready-to-Use Deliverables</h4>
+            <p class="text-xs text-subink leading-relaxed">
+              Receive organized Figma files, high-resolution exports, or ready-to-import game UI assets.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    -->
+
+    <!-- ==================== VIEW 4: ABOUT (PORTRAIT SLOT + BIO) ==================== -->
+    <div id="view-about" class="view-panel hidden">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-10 sm:gap-12 items-start">
+
+        <!-- Left Polaroid Portrait Image Slot -->
+        <div class="md:col-span-5">
+          <div class="rounded-[24px] overflow-hidden border border-zinc-200/80 bg-[#141416] shadow-xs">
+            <img src="Portfolio_About_HeadshotPolaroid_Portrait.png"
+                 alt="Polaroid portrait of Euclid Marquez"
+                 onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
+                 class="w-full h-auto object-contain block" />
+            <!-- Fallback placeholder if image file isn't in the same folder yet -->
+            <div class="hidden image-slot aspect-[4/5] w-full p-6 text-center border-0 rounded-none">
+              <span class="text-[10px] font-mono uppercase tracking-wider text-mutedink bg-white px-2.5 py-0.5 rounded-full border border-zinc-200 mb-2.5">
+                Polaroid Portrait Slot
+              </span>
+              <p class="text-xs font-medium text-ink">Portfolio_About_HeadshotPolaroid_Portrait.png</p>
+              <p class="text-[11px] text-subink mt-1">Drop in your portrait photo here</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Editorial Bio -->
+        <div class="md:col-span-7 space-y-6 pt-1">
+          <div class="space-y-3">
+            <h2 class="text-2xl sm:text-[1.85rem] font-semibold text-ink tracking-tight">
+              Hi, I'm Euclid!
+            </h2>
+            <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-subink">
+              <span class="inline-flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-mutedink shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-6-5.686-6-10a6 6 0 1112 0c0 4.314-6 10-6 10z" />
+                  <circle cx="12" cy="11" r="2.2" />
+                </svg>
+                <span>CA</span>
+              </span>
+              <span class="inline-flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-mutedink shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M22 10L12 5 2 10l10 5 10-5z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 12v5c0 1.657 2.686 3 6 3s6-1.343 6-3v-5" />
+                </svg>
+                <span>B.S. Game Design &amp; Interactive Media @ UC Irvine</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="space-y-4 text-[0.98rem] text-subink leading-relaxed">
+            <p>
+              I love creating interactive and meaningful experiences through game design and UI/UX. Whether it’s designing a game interface, building a menu flow, or crafting graphics for a project, I enjoy making things that look good and feel good to use.
+            </p>
+            <p>
+              My love for playing games and creating graphic designs naturally led me to explore game design and UX, where I learned how design and psychology work together to shape meaningful experiences.
+            </p>
+            <p>
+              I’ve always been curious about how people interact with digital spaces and how small details, like a button click or animation, can change how you feel.
+            </p>
+          </div>
+
+          <p class="pt-1 text-[0.96rem] text-subink leading-relaxed flex flex-wrap items-center gap-2">
+            <span>3 words to describe me:</span>
+            <span class="text-xs font-medium text-ink bg-pill px-3 py-1 rounded-full">Empathetic</span>
+            <span class="text-xs font-medium text-ink bg-pill px-3 py-1 rounded-full">Genuine</span>
+            <span class="text-xs font-medium text-ink bg-pill px-3 py-1 rounded-full">Attentive</span>
+            <span class="text-sm text-mutedink">(even before my morning coffee)</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Three-Column Editorial Footer Inspired by Michelle Liu -->
+  <footer class="border-t border-hairline py-12 sm:py-16 mt-auto">
+    <div class="max-w-[1040px] mx-auto px-6 sm:px-10">
+      <div class="grid grid-cols-1 sm:grid-cols-12 gap-10 sm:gap-8 items-start">
+
+        <!-- Column 1: Icon (Transparent Background) + Name & Live Los Angeles Time -->
+        <div class="sm:col-span-5 space-y-3">
+          <div class="flex items-center gap-3">
+            <div title="Euclid Marquez"
+                 class="w-[34px] h-[34px] flex items-center justify-center overflow-visible shrink-0">
+              <img src="Portfolio_IconTemp.png"
+                   alt="Euclid Marquez illustrated icon"
+                   onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
+                   class="w-full h-full object-contain" />
+              <span class="hidden text-[7px] font-mono uppercase text-mutedink leading-none select-none">Icon</span>
+            </div>
+            <span class="text-xl font-medium tracking-[-0.02em] text-ink">Euclid Marquez</span>
+          </div>
+          <div class="flex items-center gap-2 text-xs text-mutedink pl-0.5">
+            <span id="la-day-night-icon" aria-hidden="true" class="inline-flex items-center text-mutedink"></span>
+            <span id="la-live-time" class="inline-flex items-center gap-3">
+              <span>5:34 PM</span>
+              <span>Los Angeles, CA</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Column 2: Navigation Links (Work, Designs, About) -->
+        <div class="sm:col-span-3 flex flex-col items-start space-y-2.5 text-sm">
+          <button type="button" onclick="switchView('work'); window.scrollTo({ top: 0, behavior: 'smooth' });" class="text-mutedink hover:text-ink transition-colors cursor-pointer">Work</button>
+          <button type="button" onclick="switchView('designs'); window.scrollTo({ top: 0, behavior: 'smooth' });" class="text-mutedink hover:text-ink transition-colors cursor-pointer">Designs</button>
+          <!-- ARCHIVED DRAFT: Services Footer Link
+          <button type="button" onclick="switchView('services'); window.scrollTo({ top: 0, behavior: 'smooth' });" class="text-mutedink hover:text-ink transition-colors cursor-pointer">Services</button>
+          -->
+          <button type="button" onclick="switchView('about'); window.scrollTo({ top: 0, behavior: 'smooth' });" class="text-mutedink hover:text-ink transition-colors cursor-pointer">About</button>
+        </div>
+
+        <!-- Column 3: Let's chat! + Email + Social Icons (LinkedIn, itch.io, Instagram) -->
+        <div class="sm:col-span-4 space-y-2.5">
+          <p class="text-sm text-mutedink">Let's chat!</p>
+          <a href="mailto:euclidgm717@gmail.com" class="block text-sm font-medium text-ink hover:opacity-75 transition-opacity">
+            euclidgm717@gmail.com
+          </a>
+          <div class="flex items-center gap-4 pt-2 text-zinc-400">
+            <!-- LinkedIn -->
+            <a href="https://www.linkedin.com/in/euclid-marquez-5b51ab228/" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn" class="inline-flex items-center justify-center w-6 h-6 hover:text-ink transition-colors">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 3A2 2 0 0 1 21 5V19A2 2 0 0 1 19 21H5A2 2 0 0 1 3 19V5A2 2 0 0 1 5 3H19M18.5 18.5V13.2A3.26 3.26 0 0 0 15.24 9.94C14.39 9.94 13.4 10.46 12.92 11.24V10.13H10.13V18.5H12.92V13.57C12.92 12.8 13.54 12.17 14.31 12.17A1.4 1.4 0 0 1 15.71 13.57V18.5H18.5M6.88 8.56A1.68 1.68 0 0 0 8.56 6.88C8.56 5.95 7.81 5.19 6.88 5.19A1.69 1.69 0 0 0 5.19 6.88C5.19 7.81 5.95 8.56 6.88 8.56M8.27 18.5V10.13H5.5V18.5H8.27Z" />
+              </svg>
+            </a>
+            <!-- itch.io -->
+            <a href="https://yukisoba.itch.io/" target="_blank" rel="noopener" aria-label="itch.io" title="itch.io" class="inline-flex items-center justify-center w-6 h-6 hover:text-ink transition-colors">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3.13 2.5C2.07 3.13 1 4.86 1 6.1v1.26c0 1.44 1.35 2.71 2.57 2.71 1.47 0 2.7-1.22 2.7-2.66 0 1.44 1.18 2.66 2.65 2.66 1.47 0 2.62-1.22 2.62-2.66 0 1.44 1.24 2.66 2.71 2.66 1.47 0 2.65-1.22 2.65-2.66 0 1.44 1.23 2.66 2.7 2.66 1.22 0 2.57-1.27 2.57-2.71V6.1c0-1.24-1.07-2.97-2.13-3.6C17.44 2.24 14.2 2.2 12 2.2c-2.2 0-5.44.04-8.87.3zm-.8 8.54v7.63c0 1.65 1.18 2.83 2.83 2.83h13.68c1.65 0 2.83-1.18 2.83-2.83v-7.63c-.64.35-1.36.55-2.13.55-1.03 0-1.97-.36-2.7-.96-.73.6-1.64.96-2.65.96-1.03 0-1.97-.36-2.71-.96-.73.6-1.64.96-2.62.96-1.01 0-1.92-.36-2.65-.96-.73.6-1.67.96-2.7.96-.77 0-1.49-.2-2.13-.55zM9.2 12.8h5.6l1.45 2.35h-1.85v3.5H9.6v-3.5H7.75L9.2 12.8z" />
+              </svg>
+            </a>
+            <!-- Instagram -->
+            <a href="https://www.instagram.com/yukisoba.studio/?hl=en" target="_blank" rel="noopener" aria-label="Instagram" title="Instagram" class="inline-flex items-center justify-center w-6 h-6 hover:text-ink transition-colors">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3Z" />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Centered Colophon & Changelog -->
+      <div class="mt-14 pt-6 text-center space-y-1">
+        <p class="text-xs text-mutedink">
+          Built with HTML, Tailwind CSS &amp; <span class="text-ink font-medium">lattes</span>.
+          <span class="inline-block ml-0.5 align-middle" aria-hidden="true">☕</span>
+        </p>
+        <p class="text-[11px] font-mono tracking-wide text-mutedink/80">
+          CHANGELOG: 11-17-26
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== CASE STUDY POP-UP MODAL & FULL-SCREEN VIEW (/project/<slug>/full) ==================== -->
+  <div id="case-modal"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="modal-title"
+       class="fixed inset-0 z-50 hidden items-center justify-center bg-zinc-950/35 backdrop-blur-xs p-3 sm:p-6 md:p-10"
+       onclick="closeCaseModal()">
+
+    <div id="modal-dialog"
+         class="bg-paper border border-hairline rounded-[24px] w-full max-w-[980px] max-h-[90vh] flex flex-col overflow-hidden shadow-2xl"
+         onclick="event.stopPropagation()">
+
+      <!-- Sticky Top Bar: Top-Left Full-Screen Button + Route Pill + Top-Right Close -->
+      <div class="sticky top-0 z-20 flex items-center justify-between px-5 sm:px-8 py-4 bg-paper/90 backdrop-blur-md border-b border-hairline shrink-0">
+        <!-- Top-Left Full-Screen Toggle Button (Switches between 'Full screen' and 'Minimize') -->
+        <button id="fullscreen-btn"
+                type="button"
+                onclick="toggleFullScreen()"
+                class="inline-flex items-center gap-2 text-xs font-medium text-subink hover:text-ink bg-pill hover:bg-zinc-200/80 px-3.5 py-1.5 rounded-full transition-colors cursor-pointer"
+                title="Toggle Full Screen (F)">
+          <svg id="fullscreen-icon-expand" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+          </svg>
+          <svg id="fullscreen-icon-collapse" class="w-3.5 h-3.5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 14h6v6M20 10h-6V4M14 10l7-7M10 14l-7 7" />
+          </svg>
+          <span id="fullscreen-label">Full screen</span>
+        </button>
+
+        <!-- Center Route Indicator -->
+        <span id="modal-route-pill" class="hidden sm:inline-block text-[11px] font-mono text-mutedink">
+          /project/bobarista
+        </span>
+
+        <!-- Top-Right Close Button -->
+        <button type="button"
+                onclick="closeCaseModal()"
+                class="inline-flex items-center gap-1.5 text-xs font-medium text-subink hover:text-ink bg-pill hover:bg-zinc-200/80 px-3.5 py-1.5 rounded-full transition-colors cursor-pointer"
+                title="Close (Esc)">
+          <span>Close</span>
+          <span class="text-mutedink">✕</span>
+        </button>
+      </div>
+
+      <!-- Scrollable Case Study Content Body (Populated with Structured Image Slots) -->
+      <div id="modal-scroll-area" class="overflow-y-auto px-6 sm:px-10 md:px-14 py-10 sm:py-12">
+        <div id="modal-dynamic-content" class="mx-auto transition-all duration-300 max-w-[820px]">
+          <!-- Rendered dynamically by openCaseModal() -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let currentProjectSlug = null;
+    let isModalFullScreen = false;
+
+    // Helper to safely update URL hash without throwing SecurityError inside blob: preview frames
+    function updateRouteHash(hashPath) {
+      try {
+        const baseUrl = window.location.href.split('#')[0];
+        history.replaceState(null, '', hashPath ? `${baseUrl}${hashPath}` : baseUrl);
+      } catch (err) {
+        // Fallback for restricted sandboxed environments
+      }
+    }
+    // 1. Switch between Work, Designs, and About tabs below the divider (add 'services' back when un-archiving)
+    function switchView(viewName) {
+      const views = ['work', 'designs', 'about'];
+      views.forEach(v => {
+        const panel = document.getElementById(`view-${v}`);
+        const navBtn = document.getElementById(`nav-${v}`);
+        if (!panel || !navBtn) return;
+        if (v === viewName) {
+          panel.classList.remove('hidden');
+          navBtn.classList.add('active');
+        } else {
+          panel.classList.add('hidden');
+          navBtn.classList.remove('active');
+        }
+      });
+    }
+
+    // 2. Filter Designs Gallery items
+    function filterDesigns(category, btn) {
+      document.querySelectorAll('.design-filter-btn').forEach(b => {
+        b.classList.remove('bg-ink', 'text-white');
+        b.classList.add('bg-pill', 'text-subink');
+      });
+      btn.classList.remove('bg-pill', 'text-subink');
+      btn.classList.add('bg-ink', 'text-white');
+
+      document.querySelectorAll('.design-item').forEach(item => {
+        if (category === 'all' || item.dataset.cat === category) {
+          item.classList.remove('hidden');
+        } else {
+          item.classList.add('hidden');
+        }
+      });
+    }
+
+    // 3. Structured Case Study Data with Exact .png Filenames & Fit Sizing
+    const caseStudies = {
+      bobarista: {
+        slug: 'bobarista',
+        logo: {
+          file: 'BeABobarista_OfficialMascot.png',
+          alt: 'Be a Bobarista Cat Mascot Logo'
+        },
+        playLink: 'https://www.roblox.com/games/96640871771879/Title-Unavailable',
+        badge: 'Game UI/UX • Design Systems • Lua Scripting',
+        title: 'Be a Bobarista',
+        subtitle: 'Boba shop simulator built in Roblox Studio where players work together to take orders, craft drinks, and run a top-tier trendy cafe!',
+        meta: [
+          { label: 'Timeline', value: 'Dec 2025 - Present' },
+          { label: 'Role', value: 'Producer & UI/UX Designer' },
+          { label: 'Tools', value: 'Figma, Roblox Studio (Lua)' },
+          { label: 'With', value: 'Ethan Madjus' }
+        ],
+        heroSlot: {
+          file: 'BeABobarista_GameThumbnail.png',
+          ratio: '16:9 Hero Showcase',
+          desc: 'Be a Bobarista Game Thumbnail in Roblox',
+          caption: 'Fig 1. Be a Bobarista Game Thumbnail in Roblox',
+          fitClass: 'object-contain'
+        },
+        missionHtml: `Design a full-release game and user interface system in <span style="color: #00A1FF; font-weight: 600;">Roblox Studio</span>, crafted for ages 8-18 (Gen-Z &amp; Gen-Alpha players) who gravitate toward cozy, cooperative, and social gaming experiences.`,
+        designShowcase: [
+          {
+            code: 'BE A BOBARISTA',
+            emoji: '🎨',
+            title: 'Style Guide',
+            file: 'BeABobaristaStyleGuide.png',
+            bgClass: 'bg-[#fcfaf7]',
+            fitClass: 'object-contain p-3',
+            desc: ''
+          },
+          {
+            code: 'DESIGN 01',
+            emoji: '🎮',
+            title: 'Main Menu',
+            file: 'Main Menu (MidFi) - Menu.png',
+            bgClass: 'bg-[#f6f1ea]',
+            fitClass: 'object-contain p-2',
+            desc: 'Cozy cafe backdrop paired with playful menu buttons for Play, Store, and Credits.'
+          },
+          {
+            code: 'DESIGN 02',
+            emoji: '💸',
+            title: 'Register UI',
+            file: 'BeABobarista_RegisterWindow.png',
+            bgClass: 'bg-[#f7f2eb]',
+            fitClass: 'object-contain p-3',
+            desc: 'Interactive register allowing players to manually input drink bases and toppings alongside a live order receipt preview before submitting.'
+          },
+          {
+            code: 'DESIGN 03',
+            emoji: '🧋',
+            title: 'Role Select UI',
+            file: 'BeABobarista_RoleSelectWindow.png',
+            bgClass: 'bg-[#f5efe6]',
+            fitClass: 'object-contain p-2',
+            desc: 'Role selection screen letting players choose between Cashier, Barista, Waiter, and Kitchen Staff roles.'
+          },
+          {
+            code: 'DESIGN 04',
+            emoji: '🍪',
+            title: 'Recipe Book UI',
+            file: 'BeABobarista_RecipeBookWindow.png',
+            bgClass: 'bg-[#f7f3ec]',
+            fitClass: 'object-contain p-3',
+            desc: 'A step-by-step visual ingredient guide helping Kitchen Staff prepare and supply the right ingredients for Baristas.'
+          }
+        ],
+        challengesHtml: `
+          <p>
+            My primary challenge was starting with limited experience in Roblox Studio while learning how to design for both the Roblox demographic and the cozy game genre. To get up to speed, I studied and played games that correlate with Be a Bobarista, such as
+            <a href="https://www.roblox.com/games/192800/Work-at-a-Pizza-Place" target="_blank" rel="noopener" class="text-ink font-medium underline decoration-zinc-300 underline-offset-4 hover:decoration-ink transition-colors">Work at a Pizza Place</a>
+            and
+            <a href="https://www.roblox.com/games/3243063589/Pastriez-Bakery-Cafe" target="_blank" rel="noopener" class="text-ink font-medium underline decoration-zinc-300 underline-offset-4 hover:decoration-ink transition-colors">Pastriez</a>,
+            analyzing how their branding and UI choices supported their tone and audience. In doing so, I adapted these learnings to fit Be a Bobarista's playful, rounded voice and visual identity.
+          </p>
+          <div class="mt-5 pl-4 border-l-2 border-zinc-300">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.07em] text-mutedink mb-1">Guiding Design Question</p>
+            <p class="text-ink font-medium">
+              "How can I differentiate Be a Bobarista from other Roblox food simulator games while preserving the playful, rounded visual tone that makes our game unique?"
+            </p>
+          </div>
+        `,
+        iterations: [
+          {
+            code: 'ITERATION 01',
+            title: 'The Register UI',
+            story: `
+              <p>
+                One of the main problems we uncovered during playtesting was that the Cashier role felt boring. At first, players only interacted with the Register model, which automatically took and submitted orders for Baristas to make, an experience players felt was too simple.
+              </p>
+              <p>
+                In the next sprint, I redesigned the Cashier's responsibility into something more interactive. Inspired by Papa's Pizzeria's order-taking flow and Work at a Pizza Place's register buttons, I added an extra step where players manually click the matching drink based on the customer's thought bubble (<strong class="text-ink font-medium">Fig 2</strong>). However, during our second round of playtesting, players still felt the role was too plain. For the following sprint, I redesigned the Register GUI to match our style guide and made it feel like ringing up an order in real life by having players input the drink base and toppings separately alongside a live receipt preview (<strong class="text-ink font-medium">Fig 3</strong>). In doing so, on the following playtest we received positive feedback from players sharing that the Cashier role felt much more balanced and entertaining when taking orders consecutively, and that they loved the cozy visuals and aesthetic the new Register UI brought to the game.
+              </p>
+            `,
+            images: [
+              {
+                file: 'RegisterGUI_FirstIteration.png',
+                caption: 'Fig 2. First Register GUI iteration featuring single-click drink cards matched to the customer thought bubble.'
+              },
+              {
+                file: 'RegisterGUI_SecondIteration.png',
+                caption: 'Fig 3. Second Register GUI iteration aligned with the style guide, separating drink base and topping inputs with a live order receipt.'
+              }
+            ]
+          }
+        ],
+        gameplayVideo: {
+          embedUrl: 'https://drive.google.com/file/d/1x9k3rZSgAuDFeohhw7EA3aYjcH1_xF3Q/preview',
+          caption: 'Fig 4. Gameplay walkthrough showcasing Be a Bobarista mechanics and visual designs.'
+        },
+        reflection: [
+          {
+            heading: 'What have I learned so far?',
+            body: 'Playtesting gives a lot of in-depth feedback that I would not have thought about on my own while designing interfaces. Even though designers bring their own knowledge and analysis to how a screen should work, it is just as important to listen to how players actually feel when interacting with those designs. Creating a meaningful, thoughtful experience through consistent playtesting and feedback from both players and my team was my biggest takeaway, and something I will carry into all of my future design work.'
+          },
+          {
+            heading: 'Next Steps',
+            body: 'Be a Bobarista is still an ongoing game I am developing alongside my team as we work toward a full public release on Roblox. Our goal is to launch a polished cafe experience and reach at least 100 daily players visiting our game once full release goes live.'
+          }
+        ]
+      },
+      drivetalk: {
+        slug: 'drivetalk',
+        logo: {
+          file: 'drivetalk_TaxiLogo.png',
+          alt: 'drivetalk Pixel Taxi Logo'
+        },
+        playLink: 'https://6oymilk.itch.io/drivetalk',
+        badge: 'Game UI/UX • Brand Identity • Figma',
+        title: 'drivetalk',
+        subtitle: 'A narrative-driven game about a taxi driver’s introspective journey through grief, delivered via intimate conversations with strangers and the quiet hum of night rides.',
+        meta: [
+          { label: 'Timeline', value: 'Jan 2025 - Jun 2025' },
+          { label: 'Role', value: 'UI/UX Designer' },
+          { label: 'Tools', value: 'Figma' },
+          { label: 'Team', value: '10 Game Developers' }
+        ],
+        heroSlot: {
+          file: 'drivetalk_MainThumbnail.png',
+          ratio: '16:9 Hero Showcase',
+          desc: 'drivetalk Game Thumbnail',
+          caption: 'Fig 1. drivetalk Game Thumbnail',
+          fitClass: 'object-contain'
+        },
+        missionHtml: `Assist with the beautiful corner development phase. Design new UI assets and features, and redesign old prototype designs.`,
+        challengesHtml: `
+          <p>
+            My primary challenge was my limited experience designing for narrative games. To get up to speed, I studied gameplay from <span class="text-ink font-medium">Coffee Talk</span> and <span class="text-ink font-medium">Papers, Please</span>, analyzing how their UI choices supported their tone and audience. I then adapted those learnings to fit drivetalk’s more nostalgic and grief-focused atmosphere.
+          </p>
+          <div class="mt-5 pl-4 border-l-2 border-zinc-300">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.07em] text-mutedink mb-1">Guiding Design Question</p>
+            <p class="text-ink font-medium">
+              "How can I make drivetalk feel different? How can I design UI that matches the nostalgic, grief-filled tone we’re aiming for, while still being easy to use and unique to drivetalk’s style?"
+            </p>
+          </div>
+        `,
+        designShowcase: [
+          {
+            code: 'DRIVETALK',
+            emoji: '🎨',
+            title: 'Style Guide',
+            file: 'drivetalkStyleGuide.png',
+            bgClass: 'bg-[#f6f6f4]',
+            fitClass: 'object-contain p-3',
+            desc: ''
+          },
+          {
+            code: 'DESIGN 01',
+            emoji: '🚕',
+            title: 'Main Menu',
+            file: 'drivetalk_MainMenuFinal.png',
+            bgClass: 'bg-[#181a1b]',
+            fitClass: 'object-contain',
+            desc: 'Late night nostalgic backdrop paired with street sign buttons for Play, Settings, Credits, and Quit.'
+          },
+          {
+            code: 'DESIGN 02',
+            emoji: '💬',
+            title: 'Transcript Log',
+            file: 'drivetalk_TranscriptLogFinal.png',
+            bgClass: 'bg-[#181a1b]',
+            fitClass: 'object-contain',
+            desc: 'Scrollable conversation log allowing players to review past passenger dialogue and story details at any time during a ride.'
+          },
+          {
+            code: 'DESIGN 03',
+            emoji: '⏸️',
+            title: 'Pause Menu',
+            file: 'drivetalk_PauseMenu.png',
+            bgClass: 'bg-[#181a1b]',
+            fitClass: 'object-contain',
+            desc: 'Pause overlay keeping the in-game scene in the background while offering quick access to menu options.'
+          },
+          {
+            code: 'DESIGN 04',
+            emoji: '⚙️',
+            title: 'Settings Window',
+            file: 'drivetalk_Settings.png',
+            bgClass: 'bg-[#181a1b]',
+            fitClass: 'object-contain',
+            desc: 'Retro pixel-styled settings modal.'
+          },
+          {
+            code: 'DESIGN 05',
+            emoji: '🖼️',
+            title: 'Marketing Assets',
+            file: 'drivetalk_MarketingAssets.png',
+            bgClass: 'bg-[#181a1b]',
+            fitClass: 'object-contain',
+            desc: 'Promotional key art, character grid banners, and itch.io store thumbnails establishing a cohesive visual identity.'
+          },
+          {
+            code: 'DESIGN 06',
+            emoji: '🎈',
+            title: 'Expo Poster',
+            file: 'drivetalk_ExpoPoster.png',
+            bgClass: 'bg-[#ece7d8]',
+            fitClass: 'object-contain p-2',
+            desc: 'Showcase poster designed for the UC Irvine Project Expo highlighting gameplay features, tools, and team contributions.'
+          }
+        ],
+        iterations: [
+          {
+            code: 'ITERATION 01',
+            title: 'The Main Menu UI',
+            layout: 'three-col',
+            story: `
+              <p>
+                When I joined mid-development during the “beautiful corner” phase, my first task was to redesign the main menu (<strong class="text-ink font-medium">Fig 2</strong>), which at the time included placeholder buttons and a temporary logo.
+              </p>
+              <p>
+                After researching other narrative games and gathering in-game references, I created a moodboard that helped guide the visual direction for the UI. I was especially inspired by real-life street pole signs because I wanted players to feel immersed in the world of drivetalk by visually connecting the UI to the taxi environment they’d be navigating (<strong class="text-ink font-medium">Fig 3 &amp; Fig 4</strong>).
+              </p>
+            `,
+            images: [
+              {
+                file: 'drivetalk_OldMenu_Fig2.png',
+                caption: 'Fig 2. Early prototype main menu with placeholder assets'
+              },
+              {
+                file: 'drivetalk_MenuFirstIteration_Fig3.png',
+                caption: 'Fig 3. Mid fidelity iteration of the main menu'
+              },
+              {
+                file: 'drivetalk_MainMenuFinal.png',
+                caption: 'Fig 4. High fidelity and final iteration of the main menu'
+              }
+            ]
+          },
+          {
+            code: 'ITERATION 02',
+            title: 'The Transcript Log',
+            story: `
+              <p>
+                A transcript log is essential for accessibility in narrative games, letting players revisit past passenger dialogue if they missed a detail. Early on, our team debated whether to tuck the log inside the Pause Menu or place it directly on the HUD—and whether a deep blue overlay fit the game’s mood (<strong class="text-ink font-medium">Fig 5</strong>).
+              </p>
+              <p>
+                Through playtesting, I realized players wanted quick, uninterrupted access to past lines without digging through submenus. I moved the Transcript Log to its own dedicated in-game HUD button so players can reference conversations at any moment without breaking immersion.
+              </p>
+              <p>
+                To keep focus on the dialogue and reduce background noise, I replaced the blue window with a dark monochrome frame over a high-opacity blurred black backdrop (<strong class="text-ink font-medium">Fig 6</strong>), keeping every conversation readable and cohesive with drivetalk’s quiet late-night tone.
+              </p>
+            `,
+            images: [
+              {
+                file: 'drivetalk_TranscripLogFirstIteration.png',
+                caption: 'Fig 5. Mid fidelity and first iteration of the transcript log'
+              },
+              {
+                file: 'drivetalk_TranscriptLogFinal.png',
+                caption: 'Fig 6. High fidelity and final iteration of the transcript log'
+              }
+            ]
+          }
+        ],
+        gameplayVideo: {
+          embedUrl: 'https://www.youtube.com/embed/en3l_Fos86o',
+          caption: 'Fig 7. Gameplay walkthrough showcasing drivetalk narrative mechanics and UI designs.'
+        },
+        reflectionLayout: 'single',
+        reflection: [
+          {
+            heading: 'What did I learn?',
+            body: `
+              <p class="mb-3">
+                I learned that it is important to guide the player’s attention and lead them toward the experience you’ve intended without overwhelming them.
+              </p>
+              <p class="mb-3">
+                In narrative games like drivetalk, where dialogue, emotion, and subtle interactions are key, I had to carefully consider how much visual or informational content was being presented at any given moment. Players shouldn't feel lost, distracted, or mentally overloaded.
+              </p>
+              <p>
+                This meant I had to carefully think about the layout and what needed to appear on screen at any given time. Take, for instance, instead of crowding the interface with too many UI elements where I chose to place both the Transcript Log and Settings options within the Pause Menu. I began to focus on simplicity and clarity, making sure the player could stay engaged with the conversation and easily navigate between essential screens without being overwhelmed. Balancing visual interest with mental space was a big takeaway for me, and it’s something I’ll definitely carry into future UX design work!
+              </p>
+            `
+          },
+          {
+            heading: 'Next Steps',
+            body: `
+              <p class="mb-3">
+                drivetalk is the first long-term project I’ve ever done when I attended University of California, Irvine and a special project very close to my heart. I designed the UI for drivetalk to further refine my UI/UX skills as well as apply the knowledge and wisdom I have learned from the book “The Gamer’s Brain” by Celia Hodent.
+              </p>
+              <p>
+                My hope for drivetalk is for the game to be published and seen in Steam!
+              </p>
+            `
+          }
+        ]
+      }
+    };
+
+    // Helper to build a clean Image Slot HTML block (fits full image cleanly without cropping)
+    function renderImageSlot({ file, ratio, desc, caption, aspectClass = 'aspect-[16/9]', fitClass = 'object-contain' }) {
+      return `
+        <figure class="my-6">
+          <div class="rounded-[20px] bg-surface border border-zinc-200/80 p-3 sm:p-4">
+            <div class="image-slot ${aspectClass} w-full p-2 text-center">
+              <img src="${file}"
+                   alt="${desc}"
+                   class="${fitClass}"
+                   onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
+              <div class="hidden flex flex-col items-center justify-center">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-mutedink bg-white px-2.5 py-0.5 rounded-full border border-zinc-200 mb-2">
+                  ${ratio}
+                </span>
+                <p class="text-xs font-medium text-ink">${file}</p>
+                <p class="text-[11px] text-subink mt-1 max-w-md">${desc}</p>
+              </div>
+            </div>
+          </div>
+          ${caption ? `<figcaption class="text-xs text-mutedink mt-2.5 px-1">${caption}</figcaption>` : ''}
+        </figure>
+      `;
+    }
+
+    // 4. Open Case Study Modal and render structured sections
+    function openCaseModal(slug) {
+      const data = caseStudies[slug];
+      if (!data) return;
+
+      currentProjectSlug = slug;
+      const modal = document.getElementById('case-modal');
+      const container = document.getElementById('modal-dynamic-content');
+      const routePill = document.getElementById('modal-route-pill');
+
+      routePill.textContent = isModalFullScreen ? `/project/${slug}/full` : `/project/${slug}`;
+      updateRouteHash(isModalFullScreen ? `#/project/${slug}/full` : `#/project/${slug}`);
+
+      // Project Logo above tags & title (Transparent Background)
+      const logoHtml = data.logo ? `
+        <div class="mb-5">
+          <div class="w-16 h-16 flex items-center justify-center relative overflow-visible">
+            <img src="${data.logo.file}"
+                 alt="${data.logo.alt}"
+                 class="w-full h-full object-contain"
+                 onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
+            <span class="hidden text-[9px] font-mono text-mutedink text-center leading-tight">${data.logo.file}</span>
+          </div>
+        </div>
+      ` : '';
+
+      // Metadata Grid (4 columns left-to-right on desktop)
+      const metaHtml = `
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 py-6 my-8 border-y border-hairline">
+          ${data.meta.map(item => `
+            <div>
+              <p class="text-[11px] font-semibold uppercase tracking-[0.06em] text-mutedink mb-1">${item.label}</p>
+              <p class="text-sm font-medium text-ink">${item.value}</p>
+            </div>
+          `).join('')}
+        </div>
+      `;
+
+      // Hero Showcase Slot
+      const heroHtml = data.heroSlot ? renderImageSlot(data.heroSlot) : '';
+
+      // Optional 'The Mission' Section
+      const missionSectionHtml = data.missionHtml ? `
+        <section class="my-10 p-6 sm:p-8 rounded-[20px] bg-surface border border-hairline">
+          <p class="text-[11px] font-semibold uppercase tracking-[0.08em] text-mutedink mb-2.5">The Mission</p>
+          <p class="text-[1.08rem] sm:text-[1.22rem] leading-relaxed font-medium text-ink">
+            ${data.missionHtml}
+          </p>
+        </section>
+        <div class="w-full h-px bg-hairline my-10"></div>
+      ` : '';
+
+      // Optional 'Challenges' Section after The Mission
+      const challengesSectionHtml = data.challengesHtml ? `
+        <section class="my-10">
+          <h3 class="text-xs font-semibold uppercase tracking-[0.08em] text-mutedink mb-3.5">Challenges</h3>
+          <div class="text-[0.96rem] text-subink leading-relaxed space-y-4">
+            ${data.challengesHtml}
+          </div>
+        </section>
+        <div class="w-full h-px bg-hairline my-10"></div>
+      ` : '';
+
+      // Optional 2-Column Design Showcase
+      const designShowcaseHtml = data.designShowcase ? `
+        <section class="my-12 space-y-12">
+          ${data.designShowcase.map(item => `
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-center">
+              <div class="md:col-span-5 space-y-2">
+                <p class="text-[11px] font-semibold uppercase tracking-[0.08em] text-mutedink">${item.code}</p>
+                <h3 class="text-xl sm:text-[1.35rem] font-semibold text-ink tracking-tight flex items-center gap-2">
+                  <span>${item.emoji}</span>
+                  <span>${item.title}</span>
+                </h3>
+                ${item.desc ? `<p class="text-sm text-subink leading-relaxed pt-1">${item.desc}</p>` : ''}
+              </div>
+              <div class="md:col-span-7">
+                <div class="rounded-[20px] ${item.bgClass} border border-zinc-200/80 p-3.5 sm:p-4">
+                  <div class="image-slot aspect-[16/10] w-full">
+                    <img src="${item.file}"
+                         alt="${item.title}"
+                         class="${item.fitClass}"
+                         onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
+                    <div class="hidden flex flex-col items-center justify-center p-4 text-center">
+                      <span class="text-[10px] font-mono uppercase tracking-wider text-mutedink bg-white px-2.5 py-0.5 rounded-full border border-zinc-200 mb-2">
+                        ${item.code} Slot
+                      </span>
+                      <p class="text-xs font-medium text-ink">${item.file}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </section>
+        <div class="w-full h-px bg-hairline my-10"></div>
+      ` : '';
+
+      // Design Iterations + Gameplay Video + Reflection
+      const bodySectionsHtml = `
+        <div class="space-y-12 mt-10">
+          <section>
+            <h3 class="text-xs font-semibold uppercase tracking-[0.08em] text-mutedink mb-6">Design Iterations</h3>
+            <div class="space-y-14">
+              ${data.iterations.map(iter => `
+                <div class="space-y-6">
+                  <div>
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.08em] text-mutedink mb-1">${iter.code}</p>
+                    <h4 class="text-xl sm:text-[1.35rem] font-semibold text-ink tracking-tight">${iter.title}</h4>
+                  </div>
+                  <div class="text-[0.96rem] text-subink leading-relaxed space-y-4">
+                    ${iter.story}
+                  </div>
+                  ${iter.layout === 'three-col' ? `
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 items-start pt-2">
+                      ${iter.images.map(img => `
+                        <figure class="min-w-0">
+                          <div class="rounded-[18px] bg-[#181a1b] border border-zinc-200/80 p-2.5">
+                            <div class="image-slot aspect-[16/10] w-full">
+                              <img src="${img.file}"
+                                   alt="${img.caption}"
+                                   class="object-contain"
+                                   onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
+                              <div class="hidden flex flex-col items-center justify-center p-3 text-center">
+                                <p class="text-[11px] font-medium text-ink">${img.file}</p>
+                              </div>
+                            </div>
+                          </div>
+                          <figcaption class="text-xs text-mutedink mt-2.5 px-1 leading-relaxed">${img.caption}</figcaption>
+                        </figure>
+                      `).join('')}
+                    </div>
+                  ` : `
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
+                      ${iter.images.map(img => `
+                        <figure>
+                          <div class="rounded-[18px] bg-[#f7f4ef] border border-zinc-200/80 p-3">
+                            <div class="image-slot aspect-[16/10] w-full">
+                              <img src="${img.file}"
+                                   alt="${img.caption}"
+                                   class="object-contain"
+                                   onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
+                              <div class="hidden flex flex-col items-center justify-center p-4 text-center">
+                                <p class="text-xs font-medium text-ink">${img.file}</p>
+                              </div>
+                            </div>
+                          </div>
+                          <figcaption class="text-xs text-mutedink mt-2.5 px-1 leading-relaxed">${img.caption}</figcaption>
+                        </figure>
+                      `).join('')}
+                    </div>
+                  `}
+                </div>
+              `).join('')}
+            </div>
+          </section>
+
+          <div class="w-full h-px bg-hairline"></div>
+
+          ${data.gameplayVideo ? `
+            <section class="space-y-4">
+              <h3 class="text-xs font-semibold uppercase tracking-[0.08em] text-mutedink">Gameplay Video</h3>
+              <figure>
+                <div class="rounded-[20px] bg-surface border border-zinc-200/80 p-3 sm:p-4">
+                  <div class="aspect-video w-full rounded-[14px] overflow-hidden bg-black">
+                    <iframe src="${data.gameplayVideo.embedUrl}"
+                            title="${data.title} Gameplay Video"
+                            class="w-full h-full border-0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen></iframe>
+                  </div>
+                </div>
+                ${data.gameplayVideo.caption ? `<figcaption class="text-xs text-mutedink mt-2.5 px-1">${data.gameplayVideo.caption}</figcaption>` : ''}
+              </figure>
+            </section>
+
+            <div class="w-full h-px bg-hairline"></div>
+          ` : ''}
+
+          <section class="pb-4 space-y-6">
+            <h3 class="text-xs font-semibold uppercase tracking-[0.08em] text-mutedink">Reflection</h3>
+            <div class="grid grid-cols-1 ${data.reflectionLayout === 'single' ? '' : 'md:grid-cols-2'} gap-6 sm:gap-8">
+              ${data.reflection.map(item => `
+                <div class="rounded-[18px] bg-surface/60 border border-hairline p-6 sm:p-7 space-y-2.5">
+                  <h4 class="text-base font-semibold text-ink tracking-tight">${item.heading}</h4>
+                  <div class="text-[0.95rem] text-subink leading-relaxed">${item.body}</div>
+                </div>
+              `).join('')}
+            </div>
+          </section>
+        </div>
+      `;
+
+      container.innerHTML = `
+        ${logoHtml}
+        <p class="text-xs font-medium text-mutedink mb-2.5">${data.badge}</p>
+        <h2 id="modal-title" class="text-3xl sm:text-[2.35rem] font-semibold tracking-tight text-ink leading-tight mb-3">
+          ${data.title}
+        </h2>
+        <p class="text-base sm:text-[1.06rem] text-subink leading-relaxed max-w-[700px]">
+          ${data.subtitle}
+        </p>
+        ${data.playLink ? `
+          <div class="mt-5">
+            <a href="${data.playLink}"
+               target="_blank"
+               rel="noopener"
+               class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-ink text-white text-xs sm:text-sm font-medium hover:bg-zinc-700 transition-colors">
+              <span>Play Game</span>
+              <span>↗</span>
+            </a>
+          </div>
+        ` : ''}
+
+        ${metaHtml}
+        ${heroHtml}
+        ${missionSectionHtml}
+        ${challengesSectionHtml}
+        ${designShowcaseHtml}
+        ${bodySectionsHtml}
+      `;
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('modal-scroll-area').scrollTop = 0;
+    }
+
+    // 5. Toggle Full Screen / Minimize state inside Case Study Modal
+    function setFullScreenState(full) {
+      isModalFullScreen = full;
+      const modal = document.getElementById('case-modal');
+      const content = document.getElementById('modal-dynamic-content');
+      const label = document.getElementById('fullscreen-label');
+      const iconExpand = document.getElementById('fullscreen-icon-expand');
+      const iconCollapse = document.getElementById('fullscreen-icon-collapse');
+      const routePill = document.getElementById('modal-route-pill');
+
+      if (full) {
+        modal.classList.add('is-fullscreen');
+        content.classList.remove('max-w-[820px]');
+        content.classList.add('max-w-[960px]');
+        label.textContent = 'Minimize';
+        iconExpand.classList.add('hidden');
+        iconCollapse.classList.remove('hidden');
+        if (currentProjectSlug) {
+          routePill.textContent = `/project/${currentProjectSlug}/full`;
+          updateRouteHash(`#/project/${currentProjectSlug}/full`);
+        }
+      } else {
+        modal.classList.remove('is-fullscreen');
+        content.classList.remove('max-w-[960px]');
+        content.classList.add('max-w-[820px]');
+        label.textContent = 'Full screen';
+        iconExpand.classList.remove('hidden');
+        iconCollapse.classList.add('hidden');
+        if (currentProjectSlug) {
+          routePill.textContent = `/project/${currentProjectSlug}`;
+          updateRouteHash(`#/project/${currentProjectSlug}`);
+        }
+      }
+    }
+
+    function toggleFullScreen() {
+      setFullScreenState(!isModalFullScreen);
+    }
+
+    // 6. Close Modal (via Backdrop click, Close button, or Esc key)
+    function closeCaseModal() {
+      const modal = document.getElementById('case-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+      if (isModalFullScreen) {
+        setFullScreenState(false);
+      }
+      currentProjectSlug = null;
+      updateRouteHash('');
+    }
+
+    // Keyboard shortcuts: Esc to close modal, F to toggle Full screen / Minimize
+    document.addEventListener('keydown', (e) => {
+      const modal = document.getElementById('case-modal');
+      if (modal.classList.contains('hidden')) return;
+
+      if (e.key === 'Escape') {
+        closeCaseModal();
+      } else if ((e.key === 'f' || e.key === 'F') && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        toggleFullScreen();
+      }
+    });
+
+    // Live Los Angeles (PST/PDT) clock & day/night indicator in footer
+    function updateLosAngelesClock() {
+      const timeEl = document.getElementById('la-live-time');
+      const iconEl = document.getElementById('la-day-night-icon');
+      if (!timeEl || !iconEl) return;
+
+      try {
+        const now = new Date();
+        const timeStr = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'America/Los_Angeles',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        }).format(now);
+
+        const hour24 = parseInt(new Intl.DateTimeFormat('en-US', {
+          timeZone: 'America/Los_Angeles',
+          hour: 'numeric',
+          hour12: false
+        }).format(now), 10);
+
+        const isDaytime = hour24 >= 6 && hour24 < 18;
+        iconEl.innerHTML = isDaytime
+          ? `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`
+          : `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+
+        timeEl.innerHTML = `<span>${timeStr}</span><span>Los Angeles, CA</span>`;
+      } catch (err) {
+        timeEl.textContent = 'Los Angeles, CA';
+      }
+    }
+
+    updateLosAngelesClock();
+    setInterval(updateLosAngelesClock, 30000);
+  </script>
+</body>
+</html>
