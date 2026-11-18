@@ -9,10 +9,21 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Restore Saved Theme Before Paint to Avoid Flash -->
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('euclid-theme') === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
   <!-- Load Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
@@ -20,28 +31,49 @@
             serif: ['"Instrument Serif"', 'Georgia', 'serif'],
           },
           colors: {
-            paper: '#fcfcfb',
-            surface: '#f4f4f2',
-            pill: '#f1f1ef',
-            ink: '#18181b',
-            subink: '#52525b',
-            mutedink: '#71717a',
-            hairline: '#e4e4e7',
+            paper: 'var(--bg-paper)',
+            surface: 'var(--bg-surface)',
+            pill: 'var(--bg-pill)',
+            ink: 'var(--text-ink)',
+            subink: 'var(--text-subink)',
+            mutedink: 'var(--text-mutedink)',
+            hairline: 'var(--border-hairline)',
           }
         }
       }
     };
   </script>
   <style>
+    :root {
+      --bg-paper: #fcfcfb;
+      --bg-surface: #f4f4f2;
+      --bg-pill: #f1f1ef;
+      --text-ink: #18181b;
+      --text-subink: #52525b;
+      --text-mutedink: #71717a;
+      --border-hairline: #e4e4e7;
+    }
+
+    html.dark {
+      --bg-paper: #121214;
+      --bg-surface: #1b1b1f;
+      --bg-pill: #25252a;
+      --text-ink: #f4f4f5;
+      --text-subink: #a1a1aa;
+      --text-mutedink: #71717a;
+      --border-hairline: #27272a;
+    }
+
     html {
       overflow-y: scroll;
       scrollbar-gutter: stable;
     }
 
     body {
-      background-color: #fcfcfb;
-      color: #18181b;
+      background-color: var(--bg-paper);
+      color: var(--text-ink);
       -webkit-font-smoothing: antialiased;
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
 
     /* Editorial Card Hover Lift */
@@ -53,23 +85,87 @@
     }
     .project-card:hover .arrow-icon {
       transform: translate(3px, -3px);
-      color: #18181b;
+      color: var(--text-ink);
     }
 
     /* Pill Tab Styling */
     .pill-tab {
-      color: #71717a;
+      color: var(--text-mutedink);
       background-color: transparent;
       border-radius: 9999px;
       transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .pill-tab:hover:not(.active) {
-      color: #18181b;
+      color: var(--text-ink);
     }
     .pill-tab.active {
-      color: #18181b;
-      background-color: #f1f1ef;
+      color: var(--text-ink);
+      background-color: var(--bg-pill);
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+    }
+    html.dark .pill-tab.active {
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+    }
+
+    /* Top-Right Light / Dark Mode Pill Switch */
+    .theme-switch {
+      position: relative;
+      width: 64px;
+      height: 34px;
+      border-radius: 9999px;
+      background-color: #f4f4f3;
+      border: 1px solid #e4e4e7;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8px;
+      cursor: pointer;
+      transition: background-color 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+    }
+    html.dark .theme-switch {
+      background-color: #1f1f24;
+      border-color: #2e2e35;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.25);
+    }
+    .theme-switch-thumb {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 26px;
+      height: 26px;
+      border-radius: 9999px;
+      background-color: #ffffff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14), 0 1px 1px rgba(0, 0, 0, 0.06);
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.28s ease;
+      z-index: 1;
+    }
+    html.dark .theme-switch-thumb {
+      transform: translateX(30px);
+      background-color: #2e2e36;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+    }
+    .theme-switch-icon {
+      position: relative;
+      z-index: 2;
+      width: 14px;
+      height: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.25s ease, opacity 0.25s ease;
+    }
+    .theme-switch-sun {
+      color: #18181b;
+    }
+    .theme-switch-moon {
+      color: #9ca3af;
+    }
+    html.dark .theme-switch-sun {
+      color: #71717a;
+    }
+    html.dark .theme-switch-moon {
+      color: #f4f4f5;
     }
 
     /* Transparent Frameless Image Slot */
@@ -135,7 +231,7 @@
     /* Full-Screen Mode (/project/<slug>/full) */
     #case-modal.is-fullscreen {
       padding: 0 !important;
-      background-color: #fcfcfb;
+      background-color: var(--bg-paper);
     }
     #case-modal.is-fullscreen #modal-dialog {
       width: 100vw;
@@ -148,12 +244,12 @@
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col bg-paper selection:bg-zinc-900 selection:text-white">
+<body class="min-h-screen flex flex-col bg-paper text-ink selection:bg-zinc-900 selection:text-white dark:selection:bg-zinc-100 dark:selection:text-zinc-900">
 
   <!-- Persistent Editorial Hero Header & Pill-Tab Navigation -->
   <header class="max-w-[1040px] w-full mx-auto px-6 sm:px-10 pt-12 sm:pt-16">
-    <!-- Top-Left Portfolio Icon (Transparent & Frameless) -->
-    <div class="mb-7">
+    <!-- Top Header Row: Left Portfolio Icon + Right Light/Dark Pill Switch -->
+    <div class="flex items-center justify-between mb-7">
       <button type="button"
               onclick="switchView('work')"
               aria-label="Return to Work home"
@@ -164,6 +260,31 @@
              onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
              class="w-full h-full object-contain" />
         <span class="hidden text-[8px] font-mono uppercase tracking-tighter text-mutedink leading-none select-none">Icon</span>
+      </button>
+
+      <!-- Pill-Shaped Light / Dark Mode Switch -->
+      <button type="button"
+              id="theme-toggle-btn"
+              onclick="toggleTheme()"
+              role="switch"
+              aria-checked="false"
+              aria-label="Toggle dark mode"
+              title="Switch theme"
+              class="theme-switch focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400">
+        <span class="theme-switch-thumb" aria-hidden="true"></span>
+        <!-- Left Sun Icon -->
+        <span class="theme-switch-icon theme-switch-sun" aria-hidden="true">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="12" r="4.5" />
+            <path d="M12 1.75v2.25M12 20v2.25M4.75 4.75l1.6 1.6M17.65 17.65l1.6 1.6M1.75 12H4M20 12h2.25M4.75 19.25l1.6-1.6M17.65 6.35l1.6-1.6" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" />
+          </svg>
+        </span>
+        <!-- Right Crescent Moon Icon -->
+        <span class="theme-switch-icon theme-switch-moon" aria-hidden="true">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20.354 15.354A9 9 0 0 1 8.646 3.646 9.003 9.003 0 0 0 12 21a9.003 9.003 0 0 0 8.354-5.646z" />
+          </svg>
+        </span>
       </button>
     </div>
 
@@ -223,8 +344,8 @@
                  onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
                  class="w-full h-full object-contain rounded-[20px] transition-transform duration-500 group-hover:scale-[1.02]" />
             <!-- Fallback placeholder if BeABobarista.png isn't in the same folder yet -->
-            <div class="hidden image-slot w-full h-full border border-dashed border-zinc-300 rounded-[20px]">
-              <span class="text-[10px] font-mono uppercase tracking-wider text-mutedink bg-white px-2.5 py-0.5 rounded-full border border-zinc-200 mb-2">
+            <div class="hidden image-slot w-full h-full border border-dashed border-zinc-300 dark:border-zinc-700 rounded-[20px]">
+              <span class="text-[10px] font-mono uppercase tracking-wider text-mutedink bg-surface px-2.5 py-0.5 rounded-full border border-hairline mb-2">
                 16:10 Cover Slot
               </span>
               <p class="text-xs font-medium text-ink">BeABobarista.png</p>
@@ -251,8 +372,8 @@
                  onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
                  class="w-full h-full object-contain rounded-[20px] transition-transform duration-500 group-hover:scale-[1.02]" />
             <!-- Fallback placeholder if DriveTalk.png isn't in the same folder yet -->
-            <div class="hidden image-slot w-full h-full border border-dashed border-zinc-300 rounded-[20px]">
-              <span class="text-[10px] font-mono uppercase tracking-wider text-mutedink bg-white px-2.5 py-0.5 rounded-full border border-zinc-200 mb-2">
+            <div class="hidden image-slot w-full h-full border border-dashed border-zinc-300 dark:border-zinc-700 rounded-[20px]">
+              <span class="text-[10px] font-mono uppercase tracking-wider text-mutedink bg-surface px-2.5 py-0.5 rounded-full border border-hairline mb-2">
                 16:10 Cover Slot
               </span>
               <p class="text-xs font-medium text-ink">DriveTalk.png</p>
@@ -288,7 +409,7 @@
             <p class="text-sm text-subink mt-0.5">Brand identities, vector marks, and interface explorations from Yukisoba Studio &amp; game projects.</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
-            <button type="button" onclick="filterDesigns('all', this)" class="design-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium bg-ink text-white cursor-pointer">All</button>
+            <button type="button" onclick="filterDesigns('all', this)" class="design-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium bg-ink text-paper cursor-pointer">All</button>
             <button type="button" onclick="filterDesigns('brand', this)" class="design-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium bg-pill text-subink hover:text-ink cursor-pointer">Brand &amp; Logos</button>
             <button type="button" onclick="filterDesigns('ui', this)" class="design-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium bg-pill text-subink hover:text-ink cursor-pointer">UI Explorations</button>
           </div>
@@ -336,7 +457,7 @@
     <div id="view-services" class="view-panel hidden space-y-12">
 
       <div class="max-w-[740px] space-y-4">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-pill border border-zinc-200/80 text-xs font-medium text-ink">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-pill border border-hairline text-xs font-medium text-ink">
           <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
           <span>Open for Projects • Yukisoba Studio</span>
         </div>
@@ -353,137 +474,14 @@
           <a href="https://www.behance.net/euclidm"
              target="_blank"
              rel="noopener"
-             class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-ink text-white text-sm font-medium hover:bg-zinc-700 transition-colors">
+             class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-ink text-paper text-sm font-medium hover:opacity-85 transition-opacity">
             <span>Book on Behance</span>
             <span>↗</span>
           </a>
           <a href="mailto:euclidgm717@gmail.com?subject=Project%20Inquiry%20%E2%80%94%20Yukisoba%20Studio"
-             class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-pill text-ink text-sm font-medium hover:bg-zinc-200/80 border border-zinc-200/70 transition-colors">
+             class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-pill text-ink text-sm font-medium border border-hairline transition-colors">
             <span>Email for Custom Quote</span>
           </a>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-
-        <div class="rounded-[22px] bg-surface border border-zinc-200/80 p-7 sm:p-8 flex flex-col justify-between space-y-6">
-          <div class="space-y-3.5">
-            <span class="inline-block text-[11px] font-medium text-subink bg-white px-3 py-1 rounded-full border border-zinc-200/80">
-              For Local Businesses &amp; Creators
-            </span>
-            <h3 class="text-xl font-semibold text-ink tracking-tight">
-              Brand Identity &amp; Graphic Design
-            </h3>
-            <p class="text-sm text-subink leading-relaxed">
-              Memorable visual identities, logos, and print or digital collateral built to help local businesses, cafes, and creators stand out.
-            </p>
-            <ul class="pt-2 space-y-2 text-sm text-subink">
-              <li class="flex items-start gap-2.5">
-                <span class="text-ink font-medium">•</span>
-                <span>Primary &amp; secondary logo lockups or mascot marks</span>
-              </li>
-              <li class="flex items-start gap-2.5">
-                <span class="text-ink font-medium">•</span>
-                <span>Cohesive color palette &amp; typography style guide</span>
-              </li>
-              <li class="flex items-start gap-2.5">
-                <span class="text-ink font-medium">•</span>
-                <span>Menu layouts, packaging, signage, or social media graphics</span>
-              </li>
-              <li class="flex items-start gap-2.5">
-                <span class="text-ink font-medium">•</span>
-                <span>Print-ready &amp; transparent vector source files (SVG, PNG, PDF)</span>
-              </li>
-            </ul>
-          </div>
-
-          <div class="pt-4 border-t border-hairline flex flex-wrap items-center justify-between gap-3">
-            <a href="https://www.behance.net/euclidm"
-               target="_blank"
-               rel="noopener"
-               class="inline-flex items-center gap-1.5 text-sm font-medium text-ink hover:opacity-75 transition-opacity">
-              <span>View &amp; Book on Behance</span>
-              <span>↗</span>
-            </a>
-            <a href="mailto:euclidgm717@gmail.com?subject=Brand%20%26%20Graphic%20Design%20Inquiry"
-               class="text-xs font-medium text-mutedink hover:text-ink transition-colors">
-              Inquire via email →
-            </a>
-          </div>
-        </div>
-
-        <div class="rounded-[22px] bg-surface border border-zinc-200/80 p-7 sm:p-8 flex flex-col justify-between space-y-6">
-          <div class="space-y-3.5">
-            <span class="inline-block text-[11px] font-medium text-subink bg-white px-3 py-1 rounded-full border border-zinc-200/80">
-              For Indie &amp; Roblox Studios
-            </span>
-            <h3 class="text-xl font-semibold text-ink tracking-tight">
-              Game UI/UX &amp; Roblox Interfaces
-            </h3>
-            <p class="text-sm text-subink leading-relaxed">
-              Cohesive, responsive game menus, HUDs, and interactive flows designed in Figma and ready for engine integration.
-            </p>
-            <ul class="pt-2 space-y-2 text-sm text-subink">
-              <li class="flex items-start gap-2.5">
-                <span class="text-ink font-medium">•</span>
-                <span>Wireframes, player user flows &amp; interactive Figma prototypes</span>
-              </li>
-              <li class="flex items-start gap-2.5">
-                <span class="text-ink font-medium">•</span>
-                <span>Custom UI windows, buttons, badges &amp; iconography</span>
-              </li>
-              <li class="flex items-start gap-2.5">
-                <span class="text-ink font-medium">•</span>
-                <span>Game UI style guide for typography, colors &amp; states</span>
-              </li>
-              <li class="flex items-start gap-2.5">
-                <span class="text-ink font-medium">•</span>
-                <span>Optional Roblox Studio UI import &amp; responsive scaling setup</span>
-              </li>
-            </ul>
-          </div>
-
-          <div class="pt-4 border-t border-hairline flex flex-wrap items-center justify-between gap-3">
-            <a href="https://www.behance.net/euclidm"
-               target="_blank"
-               rel="noopener"
-               class="inline-flex items-center gap-1.5 text-sm font-medium text-ink hover:opacity-75 transition-opacity">
-              <span>View &amp; Book on Behance</span>
-              <span>↗</span>
-            </a>
-            <a href="mailto:euclidgm717@gmail.com?subject=Game%20UI%2FUX%20Inquiry"
-               class="text-xs font-medium text-mutedink hover:text-ink transition-colors">
-              Inquire via email →
-            </a>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="pt-2">
-        <p class="text-xs font-semibold uppercase tracking-[0.08em] text-mutedink mb-5">How It Works</p>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-hairline pt-6">
-          <div class="space-y-1.5">
-            <p class="text-xs font-mono text-mutedink">01 / BOOK OR INQUIRE</p>
-            <h4 class="text-sm font-semibold text-ink">Choose a Service or Email</h4>
-            <p class="text-xs text-subink leading-relaxed">
-              Order directly on Behance with Stripe checkout, or send an email with your project goals and timeline.
-            </p>
-          </div>
-          <div class="space-y-1.5">
-            <p class="text-xs font-mono text-mutedink">02 / DESIGN &amp; FEEDBACK</p>
-            <h4 class="text-sm font-semibold text-ink">Concepts &amp; Check-Ins</h4>
-            <p class="text-xs text-subink leading-relaxed">
-              Review initial wireframes or logo directions with structured feedback rounds to refine every detail.
-            </p>
-          </div>
-          <div class="space-y-1.5">
-            <p class="text-xs font-mono text-mutedink">03 / FINAL HANDOFF</p>
-            <h4 class="text-sm font-semibold text-ink">Ready-to-Use Deliverables</h4>
-            <p class="text-xs text-subink leading-relaxed">
-              Receive organized Figma files, high-resolution exports, or ready-to-import game UI assets.
-            </p>
-          </div>
         </div>
       </div>
 
@@ -502,8 +500,8 @@
                  onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
                  class="w-full h-auto object-contain block rounded-[18px]" />
             <!-- Fallback placeholder if image file isn't in the same folder yet -->
-            <div class="hidden image-slot aspect-[4/5] w-full p-6 text-center border border-dashed border-zinc-300 rounded-[18px]">
-              <span class="text-[10px] font-mono uppercase tracking-wider text-mutedink bg-white px-2.5 py-0.5 rounded-full border border-zinc-200 mb-2.5">
+            <div class="hidden image-slot aspect-[4/5] w-full p-6 text-center border border-dashed border-zinc-300 dark:border-zinc-700 rounded-[18px]">
+              <span class="text-[10px] font-mono uppercase tracking-wider text-mutedink bg-surface px-2.5 py-0.5 rounded-full border border-hairline mb-2.5">
                 Polaroid Portrait Slot
               </span>
               <p class="text-xs font-medium text-ink">Portfolio_About_HeadshotPolaroid_Portrait.png</p>
@@ -598,13 +596,13 @@
           <button type="button" onclick="switchView('about'); window.scrollTo({ top: 0, behavior: 'smooth' });" class="text-mutedink hover:text-ink transition-colors cursor-pointer">About</button>
         </div>
 
-        <!-- Column 3: Let's chat! + Email + Social Icons (LinkedIn, itch.io, Instagram) -->
+        <!-- Column 3: Let's chat! + Email + Social Icons (LinkedIn, itch.io, Instagram) + Resume -->
         <div class="sm:col-span-4 space-y-2.5">
           <p class="text-sm text-mutedink">Let's chat!</p>
           <a href="mailto:euclidgm717@gmail.com" class="block text-sm font-medium text-ink hover:opacity-75 transition-opacity">
             euclidgm717@gmail.com
           </a>
-          <div class="flex items-center gap-4 pt-2 text-zinc-400">
+          <div class="flex items-center gap-4 pt-2 text-mutedink">
             <!-- LinkedIn -->
             <a href="https://www.linkedin.com/in/euclid-marquez-5b51ab228/" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn" class="inline-flex items-center justify-center w-6 h-6 hover:text-ink transition-colors">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -654,7 +652,7 @@
        role="dialog"
        aria-modal="true"
        aria-labelledby="modal-title"
-       class="fixed inset-0 z-50 hidden items-center justify-center bg-zinc-950/35 backdrop-blur-xs p-3 sm:p-6 md:p-10"
+       class="fixed inset-0 z-50 hidden items-center justify-center bg-zinc-950/45 backdrop-blur-xs p-3 sm:p-6 md:p-10"
        onclick="closeCaseModal()">
 
     <div id="modal-dialog"
@@ -667,7 +665,7 @@
         <button id="fullscreen-btn"
                 type="button"
                 onclick="toggleFullScreen()"
-                class="inline-flex items-center gap-2 text-xs font-medium text-subink hover:text-ink bg-pill hover:bg-zinc-200/80 px-3.5 py-1.5 rounded-full transition-colors cursor-pointer"
+                class="inline-flex items-center gap-2 text-xs font-medium text-subink hover:text-ink bg-pill hover:opacity-85 px-3.5 py-1.5 rounded-full transition-colors cursor-pointer"
                 title="Toggle Full Screen (F)">
           <svg id="fullscreen-icon-expand" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
@@ -686,7 +684,7 @@
         <!-- Top-Right Close Button -->
         <button type="button"
                 onclick="closeCaseModal()"
-                class="inline-flex items-center gap-1.5 text-xs font-medium text-subink hover:text-ink bg-pill hover:bg-zinc-200/80 px-3.5 py-1.5 rounded-full transition-colors cursor-pointer"
+                class="inline-flex items-center gap-1.5 text-xs font-medium text-subink hover:text-ink bg-pill hover:opacity-85 px-3.5 py-1.5 rounded-full transition-colors cursor-pointer"
                 title="Close (Esc)">
           <span>Close</span>
           <span class="text-mutedink">✕</span>
@@ -737,11 +735,11 @@
     // 2. Filter Designs Gallery items (for when archived gallery is uncommented)
     function filterDesigns(category, btn) {
       document.querySelectorAll('.design-filter-btn').forEach(b => {
-        b.classList.remove('bg-ink', 'text-white');
+        b.classList.remove('bg-ink', 'text-paper');
         b.classList.add('bg-pill', 'text-subink');
       });
       btn.classList.remove('bg-pill', 'text-subink');
-      btn.classList.add('bg-ink', 'text-white');
+      btn.classList.add('bg-ink', 'text-paper');
 
       document.querySelectorAll('.design-item').forEach(item => {
         if (category === 'all' || item.dataset.cat === category) {
@@ -770,7 +768,7 @@
           { label: 'Tools', value: 'Figma, Roblox Studio (Lua)' },
           {
             label: 'With',
-            value: '<a href="https://sites.google.com/view/ethanmadjusportfolio/gameplay-mechanics" target="_blank" rel="noopener" class="underline decoration-zinc-300 underline-offset-4 hover:decoration-ink transition-colors">Ethan Madjus</a>'
+            value: '<a href="https://sites.google.com/view/ethanmadjusportfolio/gameplay-mechanics" target="_blank" rel="noopener" class="underline decoration-zinc-300 dark:decoration-zinc-600 underline-offset-4 hover:decoration-ink transition-colors">Ethan Madjus</a>'
           }
         ],
         heroSlot: {
@@ -826,12 +824,12 @@
         challengesHtml: `
           <p>
             My primary challenge was starting with limited experience in Roblox Studio while learning how to design for both the Roblox demographic and the cozy game genre. To get up to speed, I studied and played games that correlate with Be a Bobarista, such as
-            <a href="https://www.roblox.com/games/192800/Work-at-a-Pizza-Place" target="_blank" rel="noopener" class="text-ink font-medium underline decoration-zinc-300 underline-offset-4 hover:decoration-ink transition-colors">Work at a Pizza Place</a>
+            <a href="https://www.roblox.com/games/192800/Work-at-a-Pizza-Place" target="_blank" rel="noopener" class="text-ink font-medium underline decoration-zinc-300 dark:decoration-zinc-600 underline-offset-4 hover:decoration-ink transition-colors">Work at a Pizza Place</a>
             and
-            <a href="https://www.roblox.com/games/3243063589/Pastriez-Bakery-Cafe" target="_blank" rel="noopener" class="text-ink font-medium underline decoration-zinc-300 underline-offset-4 hover:decoration-ink transition-colors">Pastriez</a>,
+            <a href="https://www.roblox.com/games/3243063589/Pastriez-Bakery-Cafe" target="_blank" rel="noopener" class="text-ink font-medium underline decoration-zinc-300 dark:decoration-zinc-600 underline-offset-4 hover:decoration-ink transition-colors">Pastriez</a>,
             analyzing how their branding and UI choices supported their tone and audience. In doing so, I adapted these learnings to fit Be a Bobarista's playful, rounded voice and visual identity.
           </p>
-          <div class="mt-5 pl-4 border-l-2 border-zinc-300">
+          <div class="mt-5 pl-4 border-l-2 border-hairline">
             <p class="text-[11px] font-semibold uppercase tracking-[0.07em] text-mutedink mb-1">Guiding Design Question</p>
             <p class="text-ink font-medium">
               "How can I differentiate Be a Bobarista from other Roblox food simulator games while preserving the playful, rounded visual tone that makes our game unique?"
@@ -905,7 +903,7 @@
           <p>
             My primary challenge was my limited experience designing for narrative games. To get up to speed, I studied gameplay from <span class="text-ink font-medium">Coffee Talk</span> and <span class="text-ink font-medium">Papers, Please</span>, analyzing how their UI choices supported their tone and audience. I then adapted those learnings to fit drivetalk’s more nostalgic and grief-focused atmosphere.
           </p>
-          <div class="mt-5 pl-4 border-l-2 border-zinc-300">
+          <div class="mt-5 pl-4 border-l-2 border-hairline">
             <p class="text-[11px] font-semibold uppercase tracking-[0.07em] text-mutedink mb-1">Guiding Design Question</p>
             <p class="text-ink font-medium">
               "How can I make drivetalk feel different? How can I design UI that matches the nostalgic, grief-filled tone we’re aiming for, while still being easy to use and unique to drivetalk’s style?"
@@ -1070,8 +1068,8 @@
                    alt="${desc}"
                    class="${fitClass} rounded-[14px]"
                    onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
-              <div class="hidden flex flex-col items-center justify-center p-5 border border-dashed border-zinc-300 rounded-[14px] w-full h-full">
-                <span class="text-[10px] font-mono uppercase tracking-wider text-mutedink bg-white px-2.5 py-0.5 rounded-full border border-zinc-200 mb-2">
+              <div class="hidden flex flex-col items-center justify-center p-5 border border-dashed border-zinc-300 dark:border-zinc-700 rounded-[14px] w-full h-full">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-mutedink bg-surface px-2.5 py-0.5 rounded-full border border-hairline mb-2">
                   ${ratio}
                 </span>
                 <p class="text-xs font-medium text-ink">${file}</p>
@@ -1167,8 +1165,8 @@
                          alt="${item.title}"
                          class="object-contain rounded-[14px]"
                          onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
-                    <div class="hidden flex flex-col items-center justify-center p-4 text-center border border-dashed border-zinc-300 rounded-[14px] w-full h-full">
-                      <span class="text-[10px] font-mono uppercase tracking-wider text-mutedink bg-white px-2.5 py-0.5 rounded-full border border-zinc-200 mb-2">
+                    <div class="hidden flex flex-col items-center justify-center p-4 text-center border border-dashed border-zinc-300 dark:border-zinc-700 rounded-[14px] w-full h-full">
+                      <span class="text-[10px] font-mono uppercase tracking-wider text-mutedink bg-surface px-2.5 py-0.5 rounded-full border border-hairline mb-2">
                         ${item.code} Slot
                       </span>
                       <p class="text-xs font-medium text-ink">${item.file}</p>
@@ -1207,7 +1205,7 @@
                                    alt="${img.caption}"
                                    class="object-contain rounded-[14px]"
                                    onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
-                              <div class="hidden flex flex-col items-center justify-center p-3 text-center border border-dashed border-zinc-300 rounded-[14px] w-full h-full">
+                              <div class="hidden flex flex-col items-center justify-center p-3 text-center border border-dashed border-zinc-300 dark:border-zinc-700 rounded-[14px] w-full h-full">
                                 <p class="text-[11px] font-medium text-ink">${img.file}</p>
                               </div>
                             </div>
@@ -1226,7 +1224,7 @@
                                    alt="${img.caption}"
                                    class="object-contain rounded-[14px]"
                                    onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
-                              <div class="hidden flex flex-col items-center justify-center p-4 text-center border border-dashed border-zinc-300 rounded-[14px] w-full h-full">
+                              <div class="hidden flex flex-col items-center justify-center p-4 text-center border border-dashed border-zinc-300 dark:border-zinc-700 rounded-[14px] w-full h-full">
                                 <p class="text-xs font-medium text-ink">${img.file}</p>
                               </div>
                             </div>
@@ -1247,7 +1245,7 @@
             <section class="space-y-4">
               <h3 class="text-xs font-semibold uppercase tracking-[0.08em] text-mutedink">Gameplay Video</h3>
               <figure>
-                <div class="rounded-[20px] bg-surface border border-zinc-200/80 p-3 sm:p-4">
+                <div class="rounded-[20px] bg-surface border border-hairline p-3 sm:p-4">
                   <div class="aspect-video w-full rounded-[14px] overflow-hidden bg-black">
                     <iframe src="${data.gameplayVideo.embedUrl}"
                             title="${data.title} Gameplay Video"
@@ -1295,7 +1293,7 @@
             <a href="${data.playLink}"
                target="_blank"
                rel="noopener"
-               class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-ink text-white text-xs sm:text-sm font-medium hover:bg-zinc-700 transition-colors">
+               class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-ink text-paper text-xs sm:text-sm font-medium hover:opacity-85 transition-opacity">
               <span>Play Game</span>
               <span>↗</span>
             </a>
@@ -1379,6 +1377,25 @@
         toggleFullScreen();
       }
     });
+
+    // Light / Dark Mode Switch Handler
+    function syncThemeSwitchAccessibility() {
+      const btn = document.getElementById('theme-toggle-btn');
+      if (!btn) return;
+      const isDark = document.documentElement.classList.contains('dark');
+      btn.setAttribute('aria-checked', isDark ? 'true' : 'false');
+    }
+
+    function toggleTheme() {
+      const root = document.documentElement;
+      const isDark = root.classList.toggle('dark');
+      try {
+        localStorage.setItem('euclid-theme', isDark ? 'dark' : 'light');
+      } catch (e) {}
+      syncThemeSwitchAccessibility();
+    }
+
+    syncThemeSwitchAccessibility();
 
     // Live Los Angeles (PST/PDT) clock & day/night indicator in footer
     function updateLosAngelesClock() {
