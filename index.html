@@ -168,6 +168,14 @@
       color: #f4f4f5;
     }
 
+    /* Prevent casual image selection, dragging, and mobile long-press saving */
+    img {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-user-drag: none;
+    }
+
     /* Transparent Frameless Image Slot */
     .image-slot {
       position: relative;
@@ -1385,6 +1393,19 @@
       const isDark = document.documentElement.classList.contains('dark');
       btn.setAttribute('aria-checked', isDark ? 'true' : 'false');
     }
+
+    // Prevent right-click context menu and drag-and-drop saving on all images
+    document.addEventListener('contextmenu', (e) => {
+      if (e.target && e.target.tagName === 'IMG') {
+        e.preventDefault();
+      }
+    });
+
+    document.addEventListener('dragstart', (e) => {
+      if (e.target && e.target.tagName === 'IMG') {
+        e.preventDefault();
+      }
+    });
 
     function toggleTheme() {
       const root = document.documentElement;
