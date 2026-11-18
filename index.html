@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>euclid marquez</title>
-  <link rel="icon" type="image/png" href="Portfolio_IconTemp.png" />
+  <title>Euclid Marquez</title>
+  <link rel="icon" type="image/png" href="Portfolio_IconTemp.png?v=2" />
   <!-- Load Google Fonts: Plus Jakarta Sans & Instrument Serif -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,6 +33,11 @@
     };
   </script>
   <style>
+    html {
+      overflow-y: scroll;
+      scrollbar-gutter: stable;
+    }
+
     body {
       background-color: #fcfcfb;
       color: #18181b;
@@ -618,6 +623,14 @@
                 <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3Z" />
               </svg>
             </a>
+            <!-- Resume Link -->
+            <a href="https://drive.google.com/file/d/1Xj3K1dPxbvRiuOYENeQjxVafollY7Gdw/view?usp=sharing"
+               target="_blank"
+               rel="noopener"
+               class="inline-flex items-center gap-1 text-xs font-medium text-mutedink hover:text-ink transition-colors pl-1">
+              <span>Resume</span>
+              <span aria-hidden="true">↗</span>
+            </a>
           </div>
         </div>
 
@@ -755,7 +768,10 @@
           { label: 'Timeline', value: 'Dec 2025 - Present' },
           { label: 'Role', value: 'Producer & UI/UX Designer' },
           { label: 'Tools', value: 'Figma, Roblox Studio (Lua)' },
-          { label: 'With', value: 'Ethan Madjus' }
+          {
+            label: 'With',
+            value: '<a href="https://sites.google.com/view/ethanmadjusportfolio/gameplay-mechanics" target="_blank" rel="noopener" class="underline decoration-zinc-300 underline-offset-4 hover:decoration-ink transition-colors">Ethan Madjus</a>'
+          }
         ],
         heroSlot: {
           file: 'BeABobarista_GameThumbnail.png',
@@ -977,7 +993,7 @@
                 caption: 'Fig 3. Mid fidelity iteration of the main menu'
               },
               {
-                file: 'drivetalk_MainMenuFinal.png',
+                file: 'drivetalk_MainMenuFinal_2.png',
                 caption: 'Fig 4. High fidelity and final iteration of the main menu'
               }
             ]
@@ -987,7 +1003,7 @@
             title: 'The Transcript Log',
             story: `
               <p>
-                A transcript log is essential for accessibility in narrative games, letting players revisit past passenger dialogue if they missed a detail. Early on, our team debated whether to tuck the log inside the Pause Menu or place it directly on the HUD and whether a deep blue overlay fit the game’s mood (<strong class="text-ink font-medium">Fig 5</strong>).
+                A transcript log is essential for accessibility in narrative games, letting players revisit past passenger dialogue if they missed a detail. Early on, our team debated whether to tuck the log inside the Pause Menu or place it directly on the HUD—and whether a deep blue overlay fit the game’s mood (<strong class="text-ink font-medium">Fig 5</strong>).
               </p>
               <p>
                 Through playtesting, I realized players wanted quick, uninterrupted access to past lines without digging through submenus. I moved the Transcript Log to its own dedicated in-game HUD button so players can reference conversations at any moment without breaking immersion.
@@ -1002,7 +1018,7 @@
                 caption: 'Fig 5. Mid fidelity and first iteration of the transcript log'
               },
               {
-                file: 'drivetalk_TranscriptLogFinal.png',
+                file: 'drivetalk_TranscriptLogFinal_2.png',
                 caption: 'Fig 6. High fidelity and final iteration of the transcript log'
               }
             ]
