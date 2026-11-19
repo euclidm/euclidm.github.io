@@ -346,7 +346,7 @@
   <!-- Dynamic Content Area Below the Divider -->
   <main class="flex-1 max-w-[1040px] w-full mx-auto px-6 sm:px-10 pt-10 sm:pt-12 pb-24">
 
-    <!-- ==================== VIEW 1: WORK (DEFAULT) ==================== -->
+    <!-- ==================== VIEW 1: WORK (DEFAULT — ORIGINAL 2-COLUMN CARDS) ==================== -->
     <div id="view-work" class="view-panel">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-x-9 gap-y-12">
 
@@ -409,98 +409,145 @@
       </div>
     </div>
 
-    <!-- ==================== VIEW 2: DESIGNS (WORK IN PROGRESS + ARCHIVED GALLERY DRAFT) ==================== -->
-    <div id="view-designs" class="view-panel hidden">
-      <div class="py-12">
-        <p class="text-sm text-mutedink">Work in progress.</p>
-      </div>
+    <!-- ==================== VIEW 2: DESIGNS (CONTROL CENTER & BENTO WIDGET GRID) ==================== -->
+    <div id="view-designs" class="view-panel hidden space-y-10">
 
-      <!-- ARCHIVED DRAFT: Designs Gallery (Uncomment when ready to publish)
-      <div class="space-y-8">
-        <div class="flex flex-wrap items-center justify-between gap-4">
+      <!-- Top Control Center Grid: 4 Interactive Category Filter Widgets -->
+      <div class="space-y-4">
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
           <div>
-            <h2 class="text-xl font-semibold text-ink tracking-tight">Selected Graphic &amp; UI Designs</h2>
-            <p class="text-sm text-subink mt-0.5">Brand identities, vector marks, and interface explorations from Yukisoba Studio &amp; game projects.</p>
+            <h2 class="text-xl font-semibold text-ink tracking-tight">Welcome to my Design Gallery! :)</h2>
           </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <button type="button" onclick="filterDesigns('all', this)" class="design-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium bg-ink text-paper cursor-pointer">All</button>
-            <button type="button" onclick="filterDesigns('brand', this)" class="design-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium bg-pill text-subink hover:text-ink cursor-pointer">Brand &amp; Logos</button>
-            <button type="button" onclick="filterDesigns('ui', this)" class="design-filter-btn px-3.5 py-1.5 rounded-full text-xs font-medium bg-pill text-subink hover:text-ink cursor-pointer">UI Explorations</button>
-          </div>
+          <span id="designs-active-status" class="text-xs font-mono text-mutedink">Showing 1 project</span>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div class="design-item space-y-3" data-cat="brand">
-            <div class="image-slot aspect-[4/3] w-full text-center">
-              <img src="BeABobaristaStyleGuide.png"
-                   alt="Be a Bobarista Brand & Style Guide"
-                   class="object-contain"
-                   onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
-              <div class="hidden flex flex-col items-center justify-center p-4">
-                <p class="text-xs font-medium text-ink">BeABobaristaStyleGuide.png</p>
-              </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4" role="group" aria-label="Design Category Control Widgets">
+          <!-- Widget 1: All Designs -->
+          <button type="button"
+                  onclick="filterDesigns('all', this)"
+                  data-widget-cat="all"
+                  class="design-filter-btn active group text-left p-4 sm:p-5 rounded-[20px] border border-ink bg-surface ring-1 ring-ink/10 dark:ring-white/10 transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[116px]">
+            <div class="flex items-center justify-between w-full">
+              <span class="widget-icon-wrap w-8 h-8 rounded-xl bg-ink text-paper flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                  <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                  <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                  <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                </svg>
+              </span>
+              <span class="widget-count text-xs font-mono font-medium px-2.5 py-0.5 rounded-full bg-ink text-paper transition-colors">1</span>
             </div>
-            <div>
-              <p class="text-sm font-semibold text-ink">Be a Bobarista Brand System</p>
-              <p class="text-xs text-subink mt-0.5">Mascot mark, typography &amp; warm color palette</p>
+            <div class="mt-4">
+              <p class="text-sm font-semibold text-ink tracking-tight">All Designs</p>
+              <p class="text-[11px] text-subink mt-0.5">Full visual archive</p>
             </div>
-          </div>
+          </button>
 
-          <div class="design-item space-y-3" data-cat="ui">
-            <div class="image-slot aspect-[4/3] w-full text-center">
-              <img src="BeABobarista_RegisterWindow.png"
-                   alt="Interactive Register UI Window"
-                   class="object-contain"
-                   onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
-              <div class="hidden flex flex-col items-center justify-center p-4">
-                <p class="text-xs font-medium text-ink">BeABobarista_RegisterWindow.png</p>
-              </div>
+          <!-- Widget 2: Brand Identity -->
+          <button type="button"
+                  onclick="filterDesigns('logos', this)"
+                  data-widget-cat="logos"
+                  class="design-filter-btn group text-left p-4 sm:p-5 rounded-[20px] border border-hairline bg-surface/60 hover:bg-surface hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[116px]">
+            <div class="flex items-center justify-between w-full">
+              <span class="widget-icon-wrap w-8 h-8 rounded-xl bg-pill text-ink flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 12l8-4.5M12 12v9M12 12L4 7.5" />
+                </svg>
+              </span>
+              <span class="widget-count text-xs font-mono font-medium px-2.5 py-0.5 rounded-full bg-pill text-subink transition-colors">1</span>
             </div>
-            <div>
-              <p class="text-sm font-semibold text-ink">Tactile Register Window</p>
-              <p class="text-xs text-subink mt-0.5">Custom skeuomorphic game UI &amp; receipt preview</p>
+            <div class="mt-4">
+              <p class="text-sm font-semibold text-ink tracking-tight">Brand Identity</p>
+              <p class="text-[11px] text-subink mt-0.5">Logos, proposals &amp; brand systems</p>
             </div>
-          </div>
+          </button>
+
+          <!-- Widget 3: Social Media & Flyers -->
+          <button type="button"
+                  onclick="filterDesigns('social', this)"
+                  data-widget-cat="social"
+                  class="design-filter-btn group text-left p-4 sm:p-5 rounded-[20px] border border-hairline bg-surface/60 hover:bg-surface hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[116px]">
+            <div class="flex items-center justify-between w-full">
+              <span class="widget-icon-wrap w-8 h-8 rounded-xl bg-pill text-ink flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="4" y="3" width="16" height="18" rx="2.5" />
+                  <path stroke-linecap="round" d="M8 8h8M8 12h8M8 16h5" />
+                </svg>
+              </span>
+              <span class="widget-count text-xs font-mono font-medium px-2.5 py-0.5 rounded-full bg-pill text-subink transition-colors">0</span>
+            </div>
+            <div class="mt-4">
+              <p class="text-sm font-semibold text-ink tracking-tight">Social Media &amp; Flyers</p>
+              <p class="text-[11px] text-subink mt-0.5">Campaign posts &amp; posters <span class="text-mutedink">(Will be added soon!)</span></p>
+            </div>
+          </button>
+
+          <!-- Widget 4: Digital Illustrations -->
+          <button type="button"
+                  onclick="filterDesigns('illustrations', this)"
+                  data-widget-cat="illustrations"
+                  class="design-filter-btn group text-left p-4 sm:p-5 rounded-[20px] border border-hairline bg-surface/60 hover:bg-surface hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[116px]">
+            <div class="flex items-center justify-between w-full">
+              <span class="widget-icon-wrap w-8 h-8 rounded-xl bg-pill text-ink flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l7-7 3 3-7 7-3-3z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2 2l7.586 7.586" />
+                </svg>
+              </span>
+              <span class="widget-count text-xs font-mono font-medium px-2.5 py-0.5 rounded-full bg-pill text-subink transition-colors">0</span>
+            </div>
+            <div class="mt-4">
+              <p class="text-sm font-semibold text-ink tracking-tight">Digital Illustrations</p>
+              <p class="text-[11px] text-subink mt-0.5">Vectors &amp; Illustrations from classes <span class="text-mutedink">(Will be added soon!)</span></p>
+            </div>
+          </button>
         </div>
       </div>
-      -->
-    </div>
 
-    <!-- ==================== ARCHIVED DRAFT: VIEW 3: SERVICES (UNCOMMENT WHEN READY TO PUBLISH) ==================== -->
-    <!--
-    <div id="view-services" class="view-panel hidden space-y-12">
+      <!-- Modular Mixed-Aspect Bento Gallery -->
+      <div id="designs-bento-grid" class="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 auto-rows-auto">
 
-      <div class="max-w-[740px] space-y-4">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-pill border border-hairline text-xs font-medium text-ink">
-          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-          <span>Open for Projects • Yukisoba Studio</span>
-        </div>
+        <!-- Featured Bento Tile: K/DA: Next Level Marketing Proposal -->
+        <article onclick="openDesignLightbox('kda-proposal')"
+                 data-cat="logos"
+                 class="design-item md:col-span-8 group cursor-pointer rounded-[22px] bg-surface/70 border border-hairline p-4 sm:p-5 flex flex-col justify-between hover:border-zinc-400 dark:hover:border-zinc-600 transition-all duration-200">
+          <div class="image-slot aspect-[16/9] md:aspect-auto md:h-full md:min-h-[260px] w-full border border-dashed border-zinc-300 dark:border-zinc-700 rounded-[16px] bg-paper/60 p-5 text-center relative">
+            <img src="KDA_Introduction_1.jpg"
+                 alt="K/DA: Next Level Marketing Proposal Cover Slide"
+                 class="object-contain rounded-[14px]"
+                 onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
+            <div class="flex flex-col items-center justify-center">
+              <span class="text-[10px] font-mono uppercase tracking-wider text-mutedink bg-surface px-2.5 py-0.5 rounded-full border border-hairline mb-2">
+                2:1 Wide Deck Slot • 10 Slides
+              </span>
+              <p class="text-xs font-medium text-ink">KDA_Introduction_1.jpg</p>
+              <p class="text-[11px] text-subink mt-1">Click to view all 10 presentation slides</p>
+            </div>
+          </div>
+          <div class="mt-4 flex items-start justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-mutedink">Brand Identity</span>
+                <span class="text-[10px] font-mono text-mutedink bg-pill px-2 py-0.5 rounded-full">10 Slides</span>
+              </div>
+              <h3 class="text-sm font-semibold text-ink mt-0.5">K/DA: Next Level Marketing Proposal</h3>
+              <p class="text-xs text-subink mt-0.5">Figma, Adobe Illustrator &amp; Photoshop</p>
+            </div>
+            <span class="text-mutedink group-hover:text-ink group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform text-sm">↗</span>
+          </div>
+        </article>
 
-        <h2 class="text-2xl sm:text-[1.95rem] font-semibold text-ink tracking-tight leading-snug">
-          Brand Identity, Graphic Design &amp; Game UI/UX
-        </h2>
-
-        <p class="text-[0.98rem] text-subink leading-relaxed">
-          Available for local businesses, creators, and game developers. Book a listed service directly through my Behance page (powered by Stripe) or reach out via email for a custom project quote.
-        </p>
-
-        <div class="flex flex-wrap items-center gap-3 pt-2">
-          <a href="https://www.behance.net/euclidm"
-             target="_blank"
-             rel="noopener"
-             class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-ink text-paper text-sm font-medium hover:opacity-85 transition-opacity">
-            <span>Book on Behance</span>
-            <span>↗</span>
-          </a>
-          <a href="mailto:euclidgm717@gmail.com?subject=Project%20Inquiry%20%E2%80%94%20Yukisoba%20Studio"
-             class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-pill text-ink text-sm font-medium border border-hairline transition-colors">
-            <span>Email for Custom Quote</span>
-          </a>
-        </div>
       </div>
 
+      <!-- Empty Filter State Message (Shown when clicking Social Media & Flyers or Digital Illustrations) -->
+      <div id="designs-empty-state" class="hidden py-12 px-6 rounded-[22px] border border-dashed border-hairline bg-surface/40 text-center">
+        <p class="text-sm font-medium text-ink">Will be added soon!</p>
+        <p class="text-xs text-mutedink mt-1">New work for this category is currently being curated.</p>
+      </div>
     </div>
-    -->
 
     <!-- ==================== VIEW 4: ABOUT (FRAMELESS POLAROID PORTRAIT + BIO) ==================== -->
     <div id="view-about" class="view-panel hidden">
@@ -604,9 +651,6 @@
         <div class="sm:col-span-3 flex flex-col items-start space-y-2.5 text-sm">
           <button type="button" onclick="switchView('work'); window.scrollTo({ top: 0, behavior: 'smooth' });" class="text-mutedink hover:text-ink transition-colors cursor-pointer">Work</button>
           <button type="button" onclick="switchView('designs'); window.scrollTo({ top: 0, behavior: 'smooth' });" class="text-mutedink hover:text-ink transition-colors cursor-pointer">Designs</button>
-          <!-- ARCHIVED DRAFT: Services Footer Link
-          <button type="button" onclick="switchView('services'); window.scrollTo({ top: 0, behavior: 'smooth' });" class="text-mutedink hover:text-ink transition-colors cursor-pointer">Services</button>
-          -->
           <button type="button" onclick="switchView('about'); window.scrollTo({ top: 0, behavior: 'smooth' });" class="text-mutedink hover:text-ink transition-colors cursor-pointer">About</button>
         </div>
 
@@ -655,7 +699,7 @@
           <span class="inline-block ml-0.5 align-middle" aria-hidden="true">☕</span>
         </p>
         <p class="text-[11px] font-mono tracking-wide text-mutedink/80">
-          CHANGELOG: 11-17-26
+          CHANGELOG: 11-18-26
         </p>
       </div>
     </div>
@@ -715,6 +759,34 @@
     </div>
   </div>
 
+  <!-- ==================== DESIGN LIGHTBOX PREVIEW MODAL ==================== -->
+  <div id="design-lightbox"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="lightbox-title"
+       class="fixed inset-0 z-50 hidden items-center justify-center bg-zinc-950/50 backdrop-blur-xs p-3 sm:p-6 overflow-hidden"
+       onclick="closeDesignLightbox()">
+    <div id="design-lightbox-dialog"
+         class="bg-paper border border-hairline rounded-[24px] w-full max-w-[820px] max-h-[92vh] flex flex-col overflow-hidden shadow-2xl"
+         onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between px-5 sm:px-6 py-3 border-b border-hairline shrink-0">
+        <div class="flex items-center gap-3">
+          <span id="lightbox-category" class="text-[11px] font-mono uppercase tracking-wider text-mutedink">Brand Identity</span>
+          <span id="lightbox-slide-counter" class="hidden text-[11px] font-mono text-ink bg-pill px-2.5 py-0.5 rounded-full">Slide 1 / 10</span>
+        </div>
+        <button type="button"
+                onclick="closeDesignLightbox()"
+                class="inline-flex items-center gap-1.5 text-xs font-medium text-subink hover:text-ink bg-pill px-3.5 py-1.5 rounded-full transition-colors cursor-pointer">
+          <span>Close</span>
+          <span class="text-mutedink">✕</span>
+        </button>
+      </div>
+      <div id="lightbox-body" class="overflow-hidden p-4 sm:p-6 space-y-3">
+        <!-- Populated dynamically by openDesignLightbox() -->
+      </div>
+    </div>
+  </div>
+
   <script>
     let currentProjectSlug = null;
     let isModalFullScreen = false;
@@ -746,22 +818,200 @@
       });
     }
 
-    // 2. Filter Designs Gallery items (for when archived gallery is uncommented)
+    // 2. Filter Designs Control Center Widgets & Bento Grid
     function filterDesigns(category, btn) {
       document.querySelectorAll('.design-filter-btn').forEach(b => {
-        b.classList.remove('bg-ink', 'text-paper');
-        b.classList.add('bg-pill', 'text-subink');
-      });
-      btn.classList.remove('bg-pill', 'text-subink');
-      btn.classList.add('bg-ink', 'text-paper');
+        const isTarget = b === btn;
+        const iconWrap = b.querySelector('.widget-icon-wrap');
+        const countPill = b.querySelector('.widget-count');
 
+        if (isTarget) {
+          b.classList.add('active', 'border-ink', 'bg-surface', 'ring-1', 'ring-ink/10', 'dark:ring-white/10');
+          b.classList.remove('border-hairline', 'bg-surface/60');
+          if (iconWrap) {
+            iconWrap.classList.remove('bg-pill', 'text-ink');
+            iconWrap.classList.add('bg-ink', 'text-paper');
+          }
+          if (countPill) {
+            countPill.classList.remove('bg-pill', 'text-subink');
+            countPill.classList.add('bg-ink', 'text-paper');
+          }
+        } else {
+          b.classList.remove('active', 'border-ink', 'bg-surface', 'ring-1', 'ring-ink/10', 'dark:ring-white/10');
+          b.classList.add('border-hairline', 'bg-surface/60');
+          if (iconWrap) {
+            iconWrap.classList.remove('bg-ink', 'text-paper');
+            iconWrap.classList.add('bg-pill', 'text-ink');
+          }
+          if (countPill) {
+            countPill.classList.remove('bg-ink', 'text-paper');
+            countPill.classList.add('bg-pill', 'text-subink');
+          }
+        }
+      });
+
+      let visibleCount = 0;
       document.querySelectorAll('.design-item').forEach(item => {
         if (category === 'all' || item.dataset.cat === category) {
           item.classList.remove('hidden');
+          visibleCount++;
         } else {
           item.classList.add('hidden');
         }
       });
+
+      const emptyStateEl = document.getElementById('designs-empty-state');
+      if (emptyStateEl) {
+        if (visibleCount === 0) {
+          emptyStateEl.classList.remove('hidden');
+        } else {
+          emptyStateEl.classList.add('hidden');
+        }
+      }
+
+      const statusEl = document.getElementById('designs-active-status');
+      if (statusEl) {
+        if (visibleCount === 0) {
+          statusEl.textContent = 'Will be added soon!';
+        } else {
+          statusEl.textContent = `Showing ${visibleCount} project${visibleCount === 1 ? '' : 's'}`;
+        }
+      }
+    }
+
+    // 2B. Design Lightbox Data & Handlers (Supports Single Slots & Multi-Slide Decks)
+    const designItems = {
+      'kda-proposal': {
+        category: 'Brand Identity',
+        title: 'K/DA: Next Level Marketing Proposal',
+        tools: 'Figma, Adobe Illustrator & Photoshop',
+        note: 'A Y2K-inspired comeback marketing proposal and League of Legends client concept celebrating a virtual collaboration between K/DA and global pop group KATSEYE. Co-created with Sean Nguyen.',
+        slides: [
+          { file: 'KDA_Introduction_1.jpg', label: '01 • Introduction' },
+          { file: 'KDA_Summary_2.jpg', label: '02 • Summary' },
+          { file: 'KDA_Why_3.jpg', label: '03 • Why K/DA?' },
+          { file: 'KDA_MarketingObj_4.jpg', label: '04 • Marketing Objective & Social Campaign' },
+          { file: 'KDA_Merch_5.jpg', label: '05 • Collaborations & Merchandise' },
+          { file: 'KDA_BrandDesign_6.jpg', label: '06 • Design System' },
+          { file: 'KDA_LeagueClient_7.jpg', label: '07 • League of Legends Client' },
+          { file: 'KDA_OtherDesigns_8.jpg', label: '08 • Other In-Game Designs' },
+          { file: 'KDA_Constraints_9.jpg', label: '09 • Constraints' },
+          { file: 'KDA_Conclusion_10.jpg', label: '10 • Conclusion' }
+        ]
+      }
+    };
+
+    let currentDesignKey = null;
+    let currentSlideIndex = 0;
+
+    function renderLightboxSlide() {
+      const item = designItems[currentDesignKey];
+      if (!item || !item.slides) return;
+
+      const total = item.slides.length;
+      const slide = item.slides[currentSlideIndex];
+      const counterEl = document.getElementById('lightbox-slide-counter');
+      const bodyEl = document.getElementById('lightbox-body');
+
+      if (counterEl) {
+        counterEl.classList.remove('hidden');
+        counterEl.textContent = `Slide ${currentSlideIndex + 1} / ${total}`;
+      }
+
+      const thumbsHtml = item.slides.map((s, idx) => `
+        <button type="button"
+                onclick="goToLightboxSlide(${idx})"
+                title="${s.label}"
+                class="px-2 py-1 rounded-lg text-[11px] font-mono transition-colors cursor-pointer ${idx === currentSlideIndex ? 'bg-ink text-paper font-semibold' : 'bg-pill text-subink hover:text-ink'}">
+          ${idx + 1}
+        </button>
+      `).join('');
+
+      bodyEl.innerHTML = `
+        <div class="relative w-full h-[42vh] sm:h-[48vh] max-h-[400px] bg-surface/60 border border-hairline rounded-[16px] flex items-center justify-center p-2 sm:p-3 overflow-hidden">
+          <img src="${slide.file}"
+               alt="${slide.label}"
+               class="max-w-full max-h-full w-auto h-auto object-contain rounded-[10px]"
+               onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');" />
+          <div class="hidden flex flex-col items-center justify-center text-center p-4">
+            <span class="text-[10px] font-mono uppercase tracking-wider text-mutedink bg-surface px-2.5 py-0.5 rounded-full border border-hairline mb-2">
+              Slide ${currentSlideIndex + 1} of ${total}
+            </span>
+            <p class="text-xs font-medium text-ink">${slide.file}</p>
+            <p class="text-[11px] text-subink mt-1">${slide.label}</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+          <span class="text-xs font-medium text-ink">${slide.label}</span>
+          <div class="flex items-center gap-2">
+            <button type="button"
+                    onclick="changeLightboxSlide(-1)"
+                    class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-pill text-xs font-medium text-ink hover:opacity-80 transition-opacity cursor-pointer">
+              <span>← Prev</span>
+            </button>
+            <button type="button"
+                    onclick="changeLightboxSlide(1)"
+                    class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-ink text-paper text-xs font-medium hover:opacity-85 transition-opacity cursor-pointer">
+              <span>Next →</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-1 pt-0.5" aria-label="Slide selector">
+          ${thumbsHtml}
+        </div>
+
+        <div class="pt-2 border-t border-hairline">
+          <h3 id="lightbox-title" class="text-sm sm:text-base font-semibold text-ink">${item.title}</h3>
+          <p class="text-[11px] font-mono text-mutedink mt-0.5">${item.tools}</p>
+          <p class="text-xs text-subink leading-relaxed mt-1 line-clamp-2">${item.note}</p>
+        </div>
+      `;
+    }
+
+    function changeLightboxSlide(delta) {
+      const item = designItems[currentDesignKey];
+      if (!item || !item.slides) return;
+      const total = item.slides.length;
+      currentSlideIndex = (currentSlideIndex + delta + total) % total;
+      renderLightboxSlide();
+    }
+
+    function goToLightboxSlide(index) {
+      const item = designItems[currentDesignKey];
+      if (!item || !item.slides) return;
+      currentSlideIndex = index;
+      renderLightboxSlide();
+    }
+
+    function openDesignLightbox(key) {
+      const item = designItems[key];
+      if (!item) return;
+
+      currentDesignKey = key;
+      currentSlideIndex = 0;
+
+      const lightbox = document.getElementById('design-lightbox');
+      const catEl = document.getElementById('lightbox-category');
+      if (catEl) catEl.textContent = item.category;
+
+      renderLightboxSlide();
+
+      lightbox.classList.remove('hidden');
+      lightbox.classList.add('flex');
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDesignLightbox() {
+      const lightbox = document.getElementById('design-lightbox');
+      if (!lightbox) return;
+      lightbox.classList.add('hidden');
+      lightbox.classList.remove('flex');
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+      currentDesignKey = null;
     }
 
     // 3. Structured Case Study Data with Frameless Transparent .png Slots
@@ -1324,6 +1574,7 @@
 
       modal.classList.remove('hidden');
       modal.classList.add('flex');
+      document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
       document.getElementById('modal-scroll-area').scrollTop = 0;
     }
@@ -1372,6 +1623,7 @@
       const modal = document.getElementById('case-modal');
       modal.classList.add('hidden');
       modal.classList.remove('flex');
+      document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
       if (isModalFullScreen) {
         setFullScreenState(false);
@@ -1380,8 +1632,20 @@
       updateRouteHash('');
     }
 
-    // Keyboard shortcuts: Esc to close modal, F to toggle Full screen / Minimize
+    // Keyboard shortcuts: Esc to close modal or lightbox, ArrowLeft/Right for deck slides, F to toggle Full screen / Minimize
     document.addEventListener('keydown', (e) => {
+      const lightbox = document.getElementById('design-lightbox');
+      if (lightbox && !lightbox.classList.contains('hidden')) {
+        if (e.key === 'Escape') {
+          closeDesignLightbox();
+        } else if (e.key === 'ArrowRight') {
+          changeLightboxSlide(1);
+        } else if (e.key === 'ArrowLeft') {
+          changeLightboxSlide(-1);
+        }
+        return;
+      }
+
       const modal = document.getElementById('case-modal');
       if (modal.classList.contains('hidden')) return;
 
