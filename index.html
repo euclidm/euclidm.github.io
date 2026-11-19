@@ -885,7 +885,8 @@
         category: 'Brand Identity',
         title: 'K/DA: Next Level Marketing Proposal',
         tools: 'Figma, Adobe Illustrator & Photoshop',
-        note: 'A Y2K-inspired comeback marketing proposal and League of Legends client concept celebrating a virtual collaboration between K/DA and global pop group KATSEYE. Co-created with Sean Nguyen.',
+        presentationUrl: 'https://www.figma.com/deck/qJmgjTsvZCU8jlab5USnkh',
+        noteHtml: 'A Y2K-inspired marketing proposal featuring a collaboration between K/DA and pop group KATSEYE. Co-created with <a href="https://www.linkedin.com/in/seannguyen12/" target="_blank" rel="noopener" class="text-ink font-medium underline decoration-zinc-300 dark:decoration-zinc-600 underline-offset-4 hover:decoration-ink transition-colors">Sean Nguyen</a>!',
         slides: [
           { file: 'KDA_Introduction_1.png', label: '01 • Introduction' },
           { file: 'KDA_Summary_2.png', label: '02 • Summary' },
@@ -928,7 +929,7 @@
       `).join('');
 
       bodyEl.innerHTML = `
-        <div class="relative w-full h-[42vh] sm:h-[48vh] max-h-[400px] bg-surface/60 border border-hairline rounded-[16px] flex items-center justify-center p-2 sm:p-3 overflow-hidden">
+        <div class="relative w-full h-[38vh] sm:h-[44vh] max-h-[370px] bg-surface/60 border border-hairline rounded-[16px] flex items-center justify-center p-2 sm:p-3 overflow-hidden">
           <img src="${slide.file}"
                alt="${slide.label}"
                class="max-w-full max-h-full w-auto h-auto object-contain rounded-[10px]"
@@ -962,10 +963,21 @@
           ${thumbsHtml}
         </div>
 
-        <div class="pt-2 border-t border-hairline">
-          <h3 id="lightbox-title" class="text-sm sm:text-base font-semibold text-ink">${item.title}</h3>
-          <p class="text-[11px] font-mono text-mutedink mt-0.5">${item.tools}</p>
-          <p class="text-xs text-subink leading-relaxed mt-1 line-clamp-2">${item.note}</p>
+        <div class="pt-2.5 border-t border-hairline flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+          <div class="min-w-0">
+            <h3 id="lightbox-title" class="text-sm sm:text-base font-semibold text-ink">${item.title}</h3>
+            <p class="text-[11px] font-mono text-mutedink mt-0.5">${item.tools}</p>
+            <p class="text-xs text-subink leading-relaxed mt-1.5">${item.noteHtml || item.note}</p>
+          </div>
+          ${item.presentationUrl ? `
+            <a href="${item.presentationUrl}"
+               target="_blank"
+               rel="noopener"
+               class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-ink text-paper text-xs font-medium hover:opacity-85 transition-opacity shrink-0 self-start">
+              <span>View Slides</span>
+              <span aria-hidden="true">↗</span>
+            </a>
+          ` : ''}
         </div>
       `;
     }
